@@ -9,6 +9,8 @@ const Login = () => {
   });
 
   const [error, setError] = useState("");
+  const [response, setResponse] = useState("");
+
   const navigate = useNavigate();
 
   const handleform = (e) => {
@@ -21,24 +23,36 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setError("");
+    setResponse("");
+
     try {
       const res = await axios.post("http://localhost:8080/users/login", form);
 
       console.log(res.data);
 
-      if (res.data) {
-        navigate("/dashboard");
-      } else {
-        setError("Invalid credentials");
+      if (res.status === 200 || res.status === 201) {
+        setResponse("Login Successful");
+
+        localStorage.setItem("user", JSON.stringify(res.data));
+
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 1000);
       }
     } catch (error) {
       console.log(error);
-      setError("Something went wrong");
+
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("Invalid Email or Password");
+      }
     }
   };
 
   return (
-    <>
+    <div>
       <h1>Login</h1>
 
       <form onSubmit={handleSubmit}>
@@ -62,7 +76,8 @@ const Login = () => {
       </form>
 
       {error && <p>{error}</p>}
-    </>
+      {response && <p>{response}</p>}
+    </div>
   );
 };
 
