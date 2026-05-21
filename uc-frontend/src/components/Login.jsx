@@ -40,6 +40,9 @@ const Login = () => {
           navigate("/dashboard");
         }, 1000);
       }
+      else{
+        setResponse("Not connected to backend");
+      }
     } catch (error) {
       console.log(error);
 
@@ -52,31 +55,34 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
+    <div className="h-screen bg-blue-200 flex items-center justify-center">
+      <div className="bg-white p-10 rounded-2xl shadow-lg w-96">
+        <h1 className="text-center text-3xl font-bold text-blue-700 mb-6">
+          Login
+        </h1>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleform}
-        />
+        <form className="flex flex-col gap-4">
+          <input
+            type="email"
+            placeholder="Email"
+            className="p-3 border rounded-lg outline-none"
+          />
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleform}
-        />
+          <input
+            type="password"
+            placeholder="Password"
+            className="p-3 border rounded-lg outline-none"
+          />
 
-        <button type="submit">Login</button>
-      </form>
-
-      {error && <p>{error}</p>}
-      {response && <p>{response}</p>}
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg"
+            
+          >
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
