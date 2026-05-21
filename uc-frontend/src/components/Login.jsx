@@ -37,11 +37,14 @@ const Login = () => {
         localStorage.setItem("user", JSON.stringify(res.data));
 
         setTimeout(() => {
-          navigate("/dashboard");
+          if (res.data.role === "citizen") {
+            navigate("/citizen-dashboard");
+          } else if (res.data.role === "admin") {
+            navigate("/admin-dashboard");
+          } else if (res.data.role === "worker") {
+            navigate("/worker-dashboard");
+          }
         }, 1000);
-      }
-      else{
-        setResponse("Not connected to backend");
       }
     } catch (error) {
       console.log(error);
@@ -61,23 +64,35 @@ const Login = () => {
           Login
         </h1>
 
-        <form className="flex flex-col gap-4">
+     
+        {response && (
+          <p className="text-green-600 text-center mb-3">{response}</p>
+        )}
+
+        {error && <p className="text-red-600 text-center mb-3">{error}</p>}
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="email"
+            name="email"
             placeholder="Email"
-            className="p-3 border rounded-lg outline-none"
+            value={form.email}
+            onChange={handleform}
+            className="p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
           />
 
           <input
             type="password"
+            name="password"
             placeholder="Password"
-            className="p-3 border rounded-lg outline-none"
+            value={form.password}
+            onChange={handleform}
+            className="p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400"
           />
 
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg"
-            
+            className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition duration-300"
           >
             Login
           </button>
