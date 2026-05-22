@@ -10,4 +10,6 @@ import com.klu.model.Technician;
 @Repository
 public interface TechnicianRepository extends JpaRepository<Technician, Long> {
 
-	List<Technician> findBySkillsContainingAndAvailableTrue(String skills);}
+	List<Technician> findBySkillsContainingAndAvailableTrue(String skills);
+
+	}

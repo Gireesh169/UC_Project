@@ -31,13 +31,14 @@ public class UserController {
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
-    @PostMapping("/login")
-    public User login(
-            @RequestParam String email,
-            @RequestParam String password) {
-
-        return userService.login(email, password);
-    }
     
+    @PostMapping("/login")
+    public User login(@RequestBody User user) {
+
+        return userService.login(
+            user.getEmail(),
+            user.getPassword()
+        );
+    }
 }
 

@@ -1,32 +1,48 @@
 package com.klu.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.klu.model.Booking;
 import com.klu.service.BookingService;
 
 @RestController
 @RequestMapping("/booking")
-@CrossOrigin 
+@CrossOrigin("http://localhost:5173")
 public class BookingController {
 
     @Autowired
     private BookingService bookingService;
 
 
-    @PostMapping
-    public Booking createBooking(
-            @RequestParam Long userId,
-            @RequestParam Long serviceId,
-            @RequestParam Long issueId,
-            @RequestParam String address) {
+    @PostMapping("/create")
+   
+    public Booking createBooking(@RequestBody Map<String, Object> request) {
 
-        return bookingService.createBooking(userId, serviceId, issueId, address);
+        Long userId = Long.valueOf(request.get("userId").toString());
+        Long serviceId = Long.valueOf(request.get("serviceId").toString());
+        Long issueId = Long.valueOf(request.get("issueId").toString());
+        String address = request.get("address").toString();
+
+        return bookingService.createBooking(
+                userId,
+                serviceId,
+                issueId,
+                address
+        );
     }
-
     @GetMapping("/user/{userId}")
     public List<Booking> getUserBookings(@PathVariable Long userId) {
         return bookingService.getUserBookings(userId);
