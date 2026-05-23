@@ -14,5 +14,6 @@ public interface TechnicianRepository extends JpaRepository<Technician, Long> {
 	List<Technician> findBySkillsContainingAndAvailableTrue(String skills);
 
 	Optional<Technician> findByUserId(Long userId);
+	
 
 	}

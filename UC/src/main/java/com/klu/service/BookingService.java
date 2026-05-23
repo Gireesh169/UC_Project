@@ -43,47 +43,34 @@ public class BookingService {
             String address) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         ServiceEntity service = serviceRepository.findById(serviceId)
-                .orElseThrow(() ->
-                        new RuntimeException("Service not found"));
+                .orElseThrow(() -> new RuntimeException("Service not found"));
 
         Issue issue = issueRepository.findById(issueId)
-                .orElseThrow(() ->
-                        new RuntimeException("Issue not found"));
-
-        Technician technician = technicianRepository
-                .findBySkillsContainingAndAvailableTrue(service.getName())
-                .stream()
-                .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new RuntimeException("Issue not found"));
 
         Booking booking = new Booking();
 
         booking.setUser(user);
+
         booking.setService(service);
+
         booking.setIssue(issue);
+
         booking.setAddress(address);
-
-        if (technician != null) {
-
-            booking.setTechnician(technician);
-            booking.setStatus("ASSIGNED");
-
-        } else {
-
-            booking.setStatus("PENDING");
-        }
-
-        booking.setBookingDate(LocalDateTime.now());
 
         booking.setTotalPrice(issue.getPrice());
 
+        // IMPORTANT
+        booking.setStatus("PENDING");
+
+        // IMPORTANT
+        booking.setTechnician(null);
+
         return bookingRepository.save(booking);
     }
-
     public List<Booking> getUserBookings(Long userId) {
         return bookingRepository.findByUser_Id(userId); 
     }
@@ -125,5 +112,15 @@ public class BookingService {
     public List<Booking> getAllBookings() {
 
         return bookingRepository.findAll();
+    }
+    public List<Booking> getBookingsByTechnician(
+            Long technicianId) {
+
+        return bookingRepository
+                .findByTechnicianId(technicianId);
+    }
+    public List<Booking> getPendingBookings() {
+
+        return bookingRepository.findByStatus("PENDING");
     }
 }

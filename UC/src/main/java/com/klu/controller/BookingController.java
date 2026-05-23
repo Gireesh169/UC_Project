@@ -47,13 +47,7 @@ public class BookingController {
     public List<Booking> getUserBookings(@PathVariable Long userId) {
         return bookingService.getUserBookings(userId);
     }
-    @GetMapping("/technician/{technicianId}")
-    public List<Booking> getTechnicianBookings(
-            @PathVariable Long technicianId) {
-
-        return bookingService
-                .getTechnicianBookings(technicianId);
-    }
+    
     @PutMapping("/{bookingId}/status")
     public Booking updateStatus(
             @PathVariable Long bookingId,
@@ -80,6 +74,16 @@ public class BookingController {
     public List<Booking> getAllBookings() {
 
         return bookingService.getAllBookings();
+    }
+    @GetMapping("/technician/{technicianId}")
+    public List<Booking> getByTechnician(
+            @PathVariable Long technicianId) {
+
+        return bookingService.getBookingsByTechnician(technicianId);
+    }
+    @GetMapping("/pending")
+    public List<Booking> getPendingBookings() {
+        return bookingService.getPendingBookings();
     }
   
 }
