@@ -18,15 +18,38 @@ public class TechnicianController {
 
     @PostMapping
     public Technician create(@RequestBody Technician technician) {
+
         return technicianService.createTechnician(technician);
     }
 
-    @GetMapping
-    public List<Technician> getAll() {
+    @GetMapping("/all")
+    public List<Technician> getAllTechnicians() {
+
         return technicianService.getAllTechnicians();
     }
-    @GetMapping("/available")
-    public List<Technician> getAvailable(@RequestBody String skills) {
+
+    @GetMapping("/available/{skills}")
+    public List<Technician> getAvailable(
+            @PathVariable String skills) {
+
         return technicianService.getAvailableTechnicians(skills);
+    }
+
+    @GetMapping("/user/{userId}")
+    public Technician getByUserId(
+            @PathVariable Long userId) {
+
+        return technicianService.getByUserId(userId);
+    }
+
+    @PutMapping("/update/{id}")
+    public Technician updateTechnician(
+            @PathVariable Long id,
+            @RequestBody Technician updatedTechnician) {
+
+        return technicianService.updateTechnician(
+                id,
+                updatedTechnician
+        );
     }
 }

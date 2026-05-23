@@ -9,6 +9,9 @@ const AdminDashboard = () => {
         <li>
           <a href="/report-issue">View Issue Reports</a>
         </li>
+        <li>
+          <a href="/technician-management">Manage Technicians</a>
+        </li>
       </ul>
     </div>
   );

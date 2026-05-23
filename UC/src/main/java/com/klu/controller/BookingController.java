@@ -47,12 +47,13 @@ public class BookingController {
     public List<Booking> getUserBookings(@PathVariable Long userId) {
         return bookingService.getUserBookings(userId);
     }
-
     @GetMapping("/technician/{technicianId}")
-    public List<Booking> getTechnicianBookings(@PathVariable Long technicianId) {
-        return bookingService.getTechnicianBookings(technicianId);
-    }
+    public List<Booking> getTechnicianBookings(
+            @PathVariable Long technicianId) {
 
+        return bookingService
+                .getTechnicianBookings(technicianId);
+    }
     @PutMapping("/{bookingId}/status")
     public Booking updateStatus(
             @PathVariable Long bookingId,
@@ -66,4 +67,19 @@ public class BookingController {
         bookingService.deleteBooking(bookingId);
         return "Booking deleted successfully";
     }
+    @PutMapping("/{bookingId}/assign/{technicianId}")
+    public Booking assignTechnician(
+            @PathVariable Long bookingId,
+            @PathVariable Long technicianId) {
+
+        return bookingService.assignTechnician(
+                bookingId,
+                technicianId);
+    }
+    @GetMapping("/all")
+    public List<Booking> getAllBookings() {
+
+        return bookingService.getAllBookings();
+    }
+  
 }

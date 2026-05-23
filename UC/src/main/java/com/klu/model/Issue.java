@@ -25,6 +25,7 @@ public class Issue {
     @ManyToOne
     @JoinColumn(name = "service_id")
     private ServiceEntity service;
+    
 
 
 }

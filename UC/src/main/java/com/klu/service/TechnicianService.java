@@ -12,17 +12,44 @@ import com.klu.repository.TechnicianRepository;
 public class TechnicianService {
 
     @Autowired
-    private TechnicianRepository technicianRepo;
+    private TechnicianRepository technicianRepository;
 
     public Technician createTechnician(Technician technician) {
-        return technicianRepo.save(technician);
+
+        return technicianRepository.save(technician);
     }
 
     public List<Technician> getAllTechnicians() {
-        return technicianRepo.findAll();
+
+        return technicianRepository.findAll();
     }
 
     public List<Technician> getAvailableTechnicians(String skills) {
-        return technicianRepo.findBySkillsContainingAndAvailableTrue(skills);
+
+        return technicianRepository.findBySkillsContainingAndAvailableTrue(skills);
+    }
+
+    public Technician getByUserId(Long userId) {
+
+        return technicianRepository.findByUserId(userId)
+                .orElse(null);
+    }
+
+    public Technician updateTechnician(
+            Long id,
+            Technician updatedTechnician) {
+
+        Technician technician =
+                technicianRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Technician not found"));
+
+        technician.setName(updatedTechnician.getName());
+        technician.setPhone(updatedTechnician.getPhone());
+        technician.setSkills(updatedTechnician.getSkills());
+        technician.setExperience(updatedTechnician.getExperience());
+        technician.setAvailable(updatedTechnician.isAvailable());
+
+        return technicianRepository.save(technician);
     }
 }

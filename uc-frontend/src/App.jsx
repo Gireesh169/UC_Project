@@ -10,6 +10,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ReportIssue from "./components/pages/ReportIssue";
 import Booking from "./components/pages/Booking";
 import ServiceCreation from "./components/pages/ServiceCreation";
+import TechnicianAssignment from "./components/pages/TechnicianAssignment";
+import CompleteTechnicianProfile from "./components/pages/CompleteTechnicianProfile";
 function App() {
   const [count, setCount] = useState(0);
 
@@ -27,7 +29,14 @@ function App() {
         <Route path="*" element={<h1>404 Not Found</h1>} />
         <Route path="/booking" element={<Booking />} />
         <Route path="/service-creation" element={<ServiceCreation />} />
-        
+        <Route
+          path="/technician-management"
+          element={<TechnicianAssignment />}
+        />
+        <Route
+          path="/complete-technician-profile"
+          element={<CompleteTechnicianProfile />}
+        />
       </Routes>
     </BrowserRouter>
   );

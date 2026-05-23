@@ -21,7 +21,7 @@ public class ServiceEntityController {
         return serviceService.createService(service);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<ServiceEntity> getAll() {
         return serviceService.getAllServices();
     }

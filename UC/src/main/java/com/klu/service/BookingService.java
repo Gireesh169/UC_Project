@@ -36,32 +36,50 @@ public class BookingService {
     private IssueRepository issueRepository;
 
 
-    public Booking createBooking(Long userId, Long serviceId, Long issueId, String address) {
+    public Booking createBooking(
+            Long userId,
+            Long serviceId,
+            Long issueId,
+            String address) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
 
         ServiceEntity service = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new RuntimeException("Service not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Service not found"));
 
         Issue issue = issueRepository.findById(issueId)
-                .orElseThrow(() -> new RuntimeException("Issue not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Issue not found"));
 
         Technician technician = technicianRepository
                 .findBySkillsContainingAndAvailableTrue(service.getName())
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("No technician available"));
+                .orElse(null);
 
         Booking booking = new Booking();
+
         booking.setUser(user);
         booking.setService(service);
         booking.setIssue(issue);
-        booking.setTechnician(technician);
         booking.setAddress(address);
-        booking.setStatus("PENDING");
+
+        if (technician != null) {
+
+            booking.setTechnician(technician);
+            booking.setStatus("ASSIGNED");
+
+        } else {
+
+            booking.setStatus("PENDING");
+        }
+
         booking.setBookingDate(LocalDateTime.now());
-        booking.setTotalPrice(issue.getPrice()); 
+
+        booking.setTotalPrice(issue.getPrice());
 
         return bookingRepository.save(booking);
     }
@@ -83,5 +101,29 @@ public class BookingService {
     }
     public void deleteBooking(Long bookingId) {
         bookingRepository.deleteById(bookingId);
+    }
+    public Booking assignTechnician(
+            Long bookingId,
+            Long technicianId) {
+
+        Booking booking = bookingRepository
+                .findById(bookingId)
+                .orElseThrow(() ->
+                        new RuntimeException("Booking not found"));
+
+        Technician technician = technicianRepository
+                .findById(technicianId)
+                .orElseThrow(() ->
+                        new RuntimeException("Technician not found"));
+
+        booking.setTechnician(technician);
+
+        booking.setStatus("ASSIGNED");
+
+        return bookingRepository.save(booking);
+    }
+    public List<Booking> getAllBookings() {
+
+        return bookingRepository.findAll();
     }
 }
