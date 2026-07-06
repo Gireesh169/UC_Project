@@ -10,5 +10,6 @@ import com.klu.model.Issue;
 @Repository
 public interface IssueRepository extends JpaRepository<Issue, Long> {
 
-	List<Issue> findByServiceId(Long serviceId);
+    List<Issue> findByService_Id(Long serviceId);
+
 }

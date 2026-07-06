@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import com.klu.model.Issue;
 import com.klu.repository.IssueRepository;
@@ -17,13 +15,15 @@ public class IssueService {
     private IssueRepository issueRepository;
 
     public Issue createIssue(Issue issue) {
+
         return issueRepository.save(issue);
+
     }
 
-    @GetMapping("/service/{serviceId}")
     public List<Issue> getIssuesByService(Long serviceId) {
 
-        return issueRepository.findByServiceId(serviceId);
+        return issueRepository.findByService_Id(serviceId);
 
     }
+
 }

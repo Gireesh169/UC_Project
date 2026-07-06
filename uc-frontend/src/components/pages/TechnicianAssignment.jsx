@@ -3,6 +3,7 @@ import axios from "axios";
 
 const TechnicianAssignment = () => {
   const [bookings, setBookings] = useState([]);
+  const [history, setHistory] = useState([]);
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -12,29 +13,26 @@ const TechnicianAssignment = () => {
 
   const fetchData = async () => {
     try {
-      // FETCH ONLY PENDING BOOKINGS
       const bookingsRes = await axios.get(
         "http://localhost:8080/booking/pending",
       );
 
+      const historyRes = await axios.get(
+        "http://localhost:8080/booking/history",
+      );
+
       const techRes = await axios.get("http://localhost:8080/technicians/all");
 
-      // SAFE ARRAY CHECK
-      if (Array.isArray(bookingsRes.data)) {
-        setBookings(bookingsRes.data);
-      } else {
-        setBookings([]);
-      }
+      setBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : []);
 
-      if (Array.isArray(techRes.data)) {
-        setTechnicians(techRes.data);
-      } else {
-        setTechnicians([]);
-      }
+      setHistory(Array.isArray(historyRes.data) ? historyRes.data : []);
+
+      setTechnicians(Array.isArray(techRes.data) ? techRes.data : []);
     } catch (error) {
       console.log(error);
 
       setBookings([]);
+      setHistory([]);
       setTechnicians([]);
 
       alert("Failed to load data");
@@ -43,7 +41,6 @@ const TechnicianAssignment = () => {
     }
   };
 
-  // ASSIGN TECHNICIAN
   const assignTechnician = async (bookingId, technicianId) => {
     if (!technicianId) return;
 
@@ -62,7 +59,6 @@ const TechnicianAssignment = () => {
     }
   };
 
-  // STATUS COLOR
   const getStatusColor = (status) => {
     switch (status) {
       case "PENDING":
@@ -72,7 +68,7 @@ const TechnicianAssignment = () => {
         return "#3498db";
 
       case "IN_PROGRESS":
-        return "#9b59b6";
+        return "#8e44ad";
 
       case "COMPLETED":
         return "#27ae60";
@@ -82,85 +78,168 @@ const TechnicianAssignment = () => {
     }
   };
 
-  // LOADING
   if (loading) {
     return (
       <div style={styles.loadingContainer}>
-        <h2>Loading Technician Assignment...</h2>
+        <h2>Loading Technician Dashboard...</h2>
       </div>
     );
   }
-
   return (
     <div style={styles.container}>
+      {/* Header */}
+
       <div style={styles.header}>
         <h1 style={styles.heading}>Technician Assignment</h1>
 
-        <p style={styles.subheading}>
-          Assign technicians to pending service bookings
-        </p>
+        <p style={styles.subheading}>Assign technicians to service bookings</p>
       </div>
+
+      {/* Pending Bookings */}
+
+      <h2 style={styles.sectionTitle}>Pending Assignments</h2>
 
       <div style={styles.tableContainer}>
         <table style={styles.table}>
           <thead>
             <tr style={styles.tableHeaderRow}>
-              <th style={styles.th}>Booking ID</th>
+              <th style={styles.th}>Booking</th>
+
+              <th style={styles.th}>Customer</th>
+
               <th style={styles.th}>Service</th>
+
               <th style={styles.th}>Issue</th>
+
               <th style={styles.th}>Address</th>
+
               <th style={styles.th}>Status</th>
-              <th style={styles.th}>Assign Technician</th>
+
+              <th style={styles.th}>Assign</th>
             </tr>
           </thead>
 
           <tbody>
-            {bookings.map((booking) => (
-              <tr key={booking.id} style={styles.tr}>
-                <td style={styles.td}>#{booking.id}</td>
-
-                <td style={styles.td}>{booking.service?.name || "N/A"}</td>
-
-                <td style={styles.td}>{booking.issue?.title || "N/A"}</td>
-
-                <td style={styles.td}>{booking.address}</td>
-
-                <td style={styles.td}>
-                  <span
-                    style={{
-                      ...styles.status,
-                      backgroundColor: getStatusColor(booking.status),
-                    }}
-                  >
-                    {booking.status}
-                  </span>
-                </td>
-
-                <td style={styles.td}>
-                  <select
-                    style={styles.select}
-                    defaultValue=""
-                    onChange={(e) =>
-                      assignTechnician(booking.id, e.target.value)
-                    }
-                  >
-                    <option value="">Select Technician</option>
-
-                    {technicians.map((tech) => (
-                      <option key={tech.id} value={tech.id}>
-                        {tech.name} - {tech.skills}
-                      </option>
-                    ))}
-                  </select>
+            {bookings.length === 0 ? (
+              <tr>
+                <td colSpan="7" style={styles.empty}>
+                  No Pending Bookings
                 </td>
               </tr>
-            ))}
+            ) : (
+              bookings.map((booking) => (
+                <tr key={booking.id} style={styles.tr}>
+                  <td style={styles.td}>#{booking.id}</td>
+
+                  <td style={styles.td}>{booking.user?.name}</td>
+
+                  <td style={styles.td}>{booking.service?.name}</td>
+
+                  <td style={styles.td}>{booking.issue?.title}</td>
+
+                  <td style={styles.td}>{booking.address}</td>
+
+                  <td style={styles.td}>
+                    <span
+                      style={{
+                        ...styles.status,
+                        backgroundColor: getStatusColor(booking.status),
+                      }}
+                    >
+                      {booking.status}
+                    </span>
+                  </td>
+
+                  <td style={styles.td}>
+                    <select
+                      defaultValue=""
+                      style={styles.select}
+                      onChange={(e) =>
+                        assignTechnician(booking.id, e.target.value)
+                      }
+                    >
+                      <option value="">Select Technician</option>
+
+                      {technicians.map((tech) => (
+                        <option key={tech.id} value={tech.id}>
+                          {tech.name} ({tech.skills})
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
+      </div>
 
-        {bookings.length === 0 && (
-          <div style={styles.empty}>No pending bookings available</div>
-        )}
+      {/* History */}
+
+      <h2
+        style={{
+          ...styles.sectionTitle,
+          marginTop: 50,
+        }}
+      >
+        Assignment History
+      </h2>
+
+      <div style={styles.tableContainer}>
+        <table style={styles.table}>
+          <thead>
+            <tr style={styles.tableHeaderRow}>
+              <th style={styles.th}>Booking</th>
+
+              <th style={styles.th}>Customer</th>
+
+              <th style={styles.th}>Service</th>
+
+              <th style={styles.th}>Issue</th>
+
+              <th style={styles.th}>Technician</th>
+
+              <th style={styles.th}>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {history.length === 0 ? (
+              <tr>
+                <td colSpan="6" style={styles.empty}>
+                  No Assignment History
+                </td>
+              </tr>
+            ) : (
+              history.map((booking) => (
+                <tr key={booking.id} style={styles.tr}>
+                  <td style={styles.td}>#{booking.id}</td>
+
+                  <td style={styles.td}>{booking.user?.name}</td>
+
+                  <td style={styles.td}>{booking.service?.name}</td>
+
+                  <td style={styles.td}>{booking.issue?.title}</td>
+
+                  <td style={styles.td}>
+                    {booking.technician?.name || "Not Assigned"}
+                  </td>
+
+                  <td style={styles.td}>
+                    <span
+                      style={{
+                        ...styles.status,
+                        backgroundColor: getStatusColor(booking.status),
+                      }}
+                    >
+                      {booking.status}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -189,11 +268,19 @@ const styles = {
     fontSize: "16px",
   },
 
+  sectionTitle: {
+    fontSize: "28px",
+    marginBottom: "20px",
+    color: "#2c3e50",
+    fontWeight: "bold",
+  },
+
   tableContainer: {
     background: "white",
     borderRadius: "14px",
     overflow: "hidden",
     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+    marginBottom: "40px",
   },
 
   table: {
@@ -234,23 +321,22 @@ const styles = {
     padding: "10px",
     borderRadius: "8px",
     border: "1px solid #ccc",
-    width: "230px",
+    width: "220px",
     cursor: "pointer",
-    outline: "none",
   },
 
   empty: {
-    padding: "40px",
     textAlign: "center",
-    color: "#7f8c8d",
+    padding: "40px",
     fontSize: "18px",
+    color: "#7f8c8d",
   },
 
   loadingContainer: {
-    height: "100vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    height: "100vh",
   },
 };
 

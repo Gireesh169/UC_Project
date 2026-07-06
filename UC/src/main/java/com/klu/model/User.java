@@ -1,5 +1,7 @@
 package com.klu.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,5 +26,6 @@ public class User {
     private String address;
     private String role; // USER / ADMIN
     @OneToOne(mappedBy = "user")
+    @JsonIgnore
     private Technician technician;
 }

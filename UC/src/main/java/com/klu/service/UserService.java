@@ -34,6 +34,24 @@ public class UserService {
 
          return user;
     }
+    public User updateUser(Long id, User updatedUser) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setName(updatedUser.getName());
+        user.setPhone(updatedUser.getPhone());
+        user.setEmail(updatedUser.getEmail());
+        user.setAddress(updatedUser.getAddress());
+
+        // Update password only if provided
+        if (updatedUser.getPassword() != null &&
+            !updatedUser.getPassword().isEmpty()) {
+            user.setPassword(updatedUser.getPassword());
+        }
+
+        return userRepository.save(user);
+    }
     
     
 }

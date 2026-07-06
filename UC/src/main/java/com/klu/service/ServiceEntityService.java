@@ -21,4 +21,7 @@ public class ServiceEntityService {
     public List<ServiceEntity> getAllServices() {
         return serviceRepository.findAll();
     }
+    public ServiceEntity getServiceById(Long id) {
+        return serviceRepository.findById(id).orElse(null);
+    }
 }

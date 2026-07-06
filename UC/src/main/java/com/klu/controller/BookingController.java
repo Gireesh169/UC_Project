@@ -85,5 +85,9 @@ public class BookingController {
     public List<Booking> getPendingBookings() {
         return bookingService.getPendingBookings();
     }
+    @GetMapping("/history")
+    public List<Booking> getBookingHistory() {
+        return bookingService.getBookingHistory();
+    }
   
 }

@@ -63,10 +63,9 @@ public class BookingService {
 
         booking.setTotalPrice(issue.getPrice());
 
-        // IMPORTANT
+       
         booking.setStatus("PENDING");
-
-        // IMPORTANT
+        booking.setBookingDate(LocalDateTime.now());        
         booking.setTechnician(null);
 
         return bookingRepository.save(booking);
@@ -122,5 +121,8 @@ public class BookingService {
     public List<Booking> getPendingBookings() {
 
         return bookingRepository.findByStatus("PENDING");
+    }
+    public List<Booking> getBookingHistory() {
+        return bookingRepository.findAll();
     }
 }
