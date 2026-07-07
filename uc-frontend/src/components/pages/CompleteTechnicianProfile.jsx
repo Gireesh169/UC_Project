@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { FaUser, FaPhone, FaTools, FaCalendarAlt, FaIdCard, FaArrowLeft, FaSave } from "react-icons/fa";
 
 const CompleteTechnicianProfile = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const CompleteTechnicianProfile = () => {
     experience: "",
     available: true,
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     checkExistingProfile();
@@ -41,6 +43,13 @@ const CompleteTechnicianProfile = () => {
   };
 
   const saveProfile = async () => {
+    if (!formData.name.trim() || !formData.phone.trim() || !formData.skills.trim() || !formData.experience) {
+      alert("Please fill in all details");
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const technicianData = {
         ...formData,
@@ -56,98 +65,140 @@ const CompleteTechnicianProfile = () => {
       navigate("/worker-dashboard");
     } catch (error) {
       console.log(error);
-
       alert("Error Saving Profile");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#f5f5f5",
-      }}
-    >
-      <div
-        style={{
-          width: "400px",
-          backgroundColor: "white",
-          padding: "30px",
-          borderRadius: "10px",
-          boxShadow: "0px 0px 10px rgba(0,0,0,0.1)",
-        }}
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-center items-center p-6 relative">
+      
+      {/* Back Button */}
+      <Link 
+        to="/worker-dashboard" 
+        className="absolute top-6 left-6 flex items-center gap-2 text-slate-500 hover:text-teal-600 font-bold transition-colors cursor-pointer text-sm"
       >
-        <h1
-          style={{
-            textAlign: "center",
-            marginBottom: "20px",
-          }}
-        >
-          Complete Technician Profile
-        </h1>
+        <FaArrowLeft />
+        Back to Dashboard
+      </Link>
 
-        <input
-          type="text"
-          name="name"
-          placeholder="Enter Name"
-          onChange={handleChange}
-          style={inputStyle}
-        />
+      <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200/60 shadow-sm p-8 space-y-6">
+        
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="w-14 h-14 rounded-2xl bg-teal-50 border border-teal-100 text-teal-650 flex items-center justify-center text-2xl mx-auto">
+            <FaIdCard />
+          </div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+            Complete Profile
+          </h1>
+          <p className="text-slate-500 text-sm">
+            Fill in your technician details to start receiving workorders
+          </p>
+        </div>
 
-        <input
-          type="text"
-          name="phone"
-          placeholder="Enter Phone"
-          onChange={handleChange}
-          style={inputStyle}
-        />
+        {/* Inputs Form */}
+        <div className="space-y-4">
+          <div>
+            <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="name">
+              Full Name
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                <FaUser className="text-sm" />
+              </span>
+              <input
+                id="name"
+                type="text"
+                name="name"
+                placeholder="Enter Name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+              />
+            </div>
+          </div>
 
-        <input
-          type="text"
-          name="skills"
-          placeholder="Skills (AC, Plumbing, Electrician)"
-          onChange={handleChange}
-          style={inputStyle}
-        />
+          <div>
+            <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="phone">
+              Phone Number
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                <FaPhone className="text-sm" />
+              </span>
+              <input
+                id="phone"
+                type="text"
+                name="phone"
+                placeholder="Enter Phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+              />
+            </div>
+          </div>
 
-        <input
-          type="number"
-          name="experience"
-          placeholder="Experience in Years"
-          onChange={handleChange}
-          style={inputStyle}
-        />
+          <div>
+            <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="skills">
+              Skills (Comma Separated)
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                <FaTools className="text-sm" />
+              </span>
+              <input
+                id="skills"
+                type="text"
+                name="skills"
+                placeholder="AC, Refrigerator, Washing Machine"
+                value={formData.skills}
+                onChange={handleChange}
+                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+              />
+            </div>
+          </div>
 
-        <button
-          onClick={saveProfile}
-          style={{
-            width: "100%",
-            padding: "12px",
-            border: "none",
-            backgroundColor: "#007bff",
-            color: "white",
-            fontSize: "16px",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          Save Profile
-        </button>
+          <div>
+            <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="experience">
+              Experience (in Years)
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                <FaCalendarAlt className="text-sm" />
+              </span>
+              <input
+                id="experience"
+                type="number"
+                name="experience"
+                placeholder="Experience in Years"
+                value={formData.experience}
+                onChange={handleChange}
+                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={saveProfile}
+            disabled={loading}
+            className="w-full bg-teal-650 hover:bg-teal-700 disabled:bg-teal-800 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-teal-600/10 transition duration-300 flex items-center justify-center gap-2 cursor-pointer text-sm"
+          >
+            {loading ? (
+              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            ) : (
+              <>
+                <FaSave />
+                Save Profile
+              </>
+            )}
+          </button>
+        </div>
+
       </div>
     </div>
   );
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "12px",
-  marginBottom: "15px",
-  borderRadius: "5px",
-  border: "1px solid #ccc",
-  fontSize: "15px",
 };
 
 export default CompleteTechnicianProfile;

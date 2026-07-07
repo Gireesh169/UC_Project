@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CitizenDashboardNav from "./CitizenDashboardNav";
+import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaLock, FaUserCog, FaSave } from "react-icons/fa";
 
 function UpdateProfile() {
   const [user, setUser] = useState({
@@ -11,10 +12,11 @@ function UpdateProfile() {
     address: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const loggedUser = JSON.parse(localStorage.getItem("user"));
-
     if (loggedUser) {
       setUser(loggedUser);
     }
@@ -28,90 +30,172 @@ function UpdateProfile() {
   };
 
   const updateProfile = () => {
+    setLoading(true);
+    setMessage("");
+
     axios
       .put(`http://localhost:8080/users/edit/${user.id}`, user)
       .then((response) => {
-        alert("Profile Updated Successfully");
+        setMessage("Profile Updated Successfully!");
         localStorage.setItem("user", JSON.stringify(response.data));
+        setLoading(false);
       })
       .catch((error) => {
         console.log(error);
+        setMessage("Failed to update profile. Please try again.");
+        setLoading(false);
       });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+    <div className="min-h-screen bg-slate-50 text-slate-800 pb-20">
       <CitizenDashboardNav />
 
-      <div className="pt-32 flex justify-center">
-        <div className="w-full max-w-lg bg-white rounded-3xl shadow-xl p-8">
-          <h2 className="text-3xl font-bold text-center mb-8">
-            Update Profile
-          </h2>
+      <div className="pt-28 flex justify-center px-6">
+        <div className="w-full max-w-xl bg-white rounded-3xl border border-slate-200/60 shadow-sm p-8 space-y-8">
+          
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <div className="w-14 h-14 rounded-2xl bg-teal-50 border border-teal-100 text-teal-650 flex items-center justify-center text-2xl mx-auto shadow-sm">
+              <FaUserCog />
+            </div>
+            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+              Update Profile
+            </h2>
+            <p className="text-slate-500 text-sm">
+              Manage your personal information and contact details
+            </p>
+          </div>
 
-          <div className="space-y-5">
+          {/* Success / Error Message Banner */}
+          {message && (
+            <div className={`p-4 rounded-2xl text-center font-semibold text-sm border ${
+              message.includes("Successfully")
+                ? "bg-teal-50 text-teal-750 border-teal-200"
+                : "bg-red-50 text-red-750 border-red-200"
+            }`}>
+              {message}
+            </div>
+          )}
+
+          {/* Form */}
+          <div className="space-y-6">
             <div>
-              <label className="block mb-2 font-semibold">Name</label>
-              <input
-                type="text"
-                name="name"
-                value={user.name}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
-              />
+              <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="name">
+                Full Name
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                  <FaUser className="text-sm" />
+                </span>
+                <input
+                  id="name"
+                  type="text"
+                  name="name"
+                  value={user.name || ""}
+                  onChange={handleChange}
+                  placeholder="John Doe"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block mb-2 font-semibold">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={user.email}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
-              />
+              <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="email">
+                Email Address
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                  <FaEnvelope className="text-sm" />
+                </span>
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  value={user.email || ""}
+                  onChange={handleChange}
+                  placeholder="john@example.com"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block mb-2 font-semibold">Phone</label>
-              <input
-                type="text"
-                name="phone"
-                value={user.phone}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
-              />
+              <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="phone">
+                Phone Number
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                  <FaPhone className="text-sm" />
+                </span>
+                <input
+                  id="phone"
+                  type="text"
+                  name="phone"
+                  value={user.phone || ""}
+                  onChange={handleChange}
+                  placeholder="+91 98765 43210"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block mb-2 font-semibold">Address</label>
-              <textarea
-                name="address"
-                value={user.address}
-                onChange={handleChange}
-                rows="3"
-                className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
-              />
+              <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="address">
+                Primary Address
+              </label>
+              <div className="relative">
+                <span className="absolute top-3.5 left-4 text-slate-400">
+                  <FaMapMarkerAlt className="text-sm" />
+                </span>
+                <textarea
+                  id="address"
+                  name="address"
+                  value={user.address || ""}
+                  onChange={handleChange}
+                  rows="3"
+                  placeholder="House No, Street, Landmark, Area, City, Pincode"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 resize-none transition-all text-sm font-medium"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block mb-2 font-semibold">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={user.password}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
-              />
+              <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="password">
+                Password
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+                  <FaLock className="text-sm" />
+                </span>
+                <input
+                  id="password"
+                  type="password"
+                  name="password"
+                  value={user.password || ""}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+                />
+              </div>
             </div>
 
             <button
               onClick={updateProfile}
-              className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold transition duration-300"
+              disabled={loading}
+              className="w-full bg-teal-650 hover:bg-teal-700 disabled:bg-teal-800 text-white font-bold py-3.5 rounded-2xl transition duration-300 shadow-lg shadow-teal-650/10 flex items-center justify-center gap-2 cursor-pointer text-sm"
             >
-              Update Profile
+              {loading ? (
+                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              ) : (
+                <>
+                  <FaSave />
+                  Save Changes
+                </>
+              )}
             </button>
           </div>
+
         </div>
       </div>
     </div>

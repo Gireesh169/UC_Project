@@ -1,4 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
+import { 
+  FaTools, 
+  FaExclamationTriangle, 
+  FaUserTie, 
+  FaClipboardList, 
+  FaPlusCircle, 
+  FaTasks, 
+  FaUserCheck, 
+  FaSignOutAlt,
+  FaArrowRight,
+  FaChartLine,
+  FaRegBell
+} from "react-icons/fa";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -9,257 +22,173 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-emerald-100 via-green-50 to-teal-100">
-      <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-green-400/30 blur-3xl"></div>
-
-      <div className="absolute top-40 right-0 w-80 h-80 rounded-full bg-blue-300/30 blur-3xl"></div>
-
-      <div className="absolute bottom-0 left-1/2 w-96 h-96 rounded-full bg-emerald-300/30 blur-3xl"></div>
-
-      <div className="relative z-10 px-10 pt-8">
-        <div className="backdrop-blur-xl bg-white/30 border border-white/40 rounded-3xl shadow-2xl px-8 py-5 flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-extrabold text-green-700">Flezo </h1>
-
-            <p className="text-gray-600">Admin Management Portal</p>
+    <div className="relative min-h-screen bg-slate-50 text-slate-800 pb-20">
+      
+      {/* Top Navbar */}
+      <header className="sticky top-0 z-50 bg-slate-900 text-white border-b border-slate-850">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-teal-650 flex items-center justify-center text-white text-xl">
+              <FaTools />
+            </div>
+            <div>
+              <span className="text-xl font-black tracking-tight block">Flezo <span className="text-teal-400">Admin</span></span>
+              <span className="text-slate-400 text-xs font-medium">Administration Portal</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="text-right">
-              <h2 className="font-bold text-gray-800">Administrator</h2>
-
-              <p className="text-sm text-gray-500">Full Access</p>
+            <div className="text-right hidden sm:block">
+              <h2 className="font-bold text-sm text-white">Administrator</h2>
+              <p className="text-xs text-slate-400">Full Access Manager</p>
             </div>
-
-            <div className="w-14 h-14 rounded-full bg-gradient-to-r from-green-500 to-green-700 flex items-center justify-center text-white text-2xl shadow-lg">
+            <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-white text-xl border border-slate-700 shadow-inner">
               👨‍💼
             </div>
-
             <button
               onClick={logout}
-              className="px-6 py-3 rounded-2xl bg-red-500 text-white font-semibold shadow-lg hover:bg-red-600 hover:scale-105 transition duration-300"
+              className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-xl text-red-455 hover:bg-red-950/30 hover:text-red-400 transition-colors cursor-pointer"
             >
+              <FaSignOutAlt />
               Logout
             </button>
           </div>
         </div>
+      </header>
 
-        <div className="mt-12 text-center">
-          <h1 className="text-6xl font-black text-gray-800">
-            Welcome Back
-            <span className="text-green-600"> Admin 👋</span>
+      {/* Main Workspace */}
+      <main className="max-w-7xl mx-auto px-6 mt-10 space-y-12">
+        
+        {/* Welcome Banner */}
+        <div className="text-center md:text-left space-y-3">
+          <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+            Welcome Back, <span className="text-teal-650">Admin 👋</span>
           </h1>
-
-          <p className="text-gray-600 mt-5 text-xl">
-            Manage Services, Customers, Technicians and Bookings
+          <p className="text-slate-500 text-sm md:text-base max-w-xl">
+            Control service listings, manage issues database, view statistics, and assign technicians to bookings.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-8 mt-16">
-          <div className="backdrop-blur-xl bg-white/40 rounded-3xl p-8 shadow-xl hover:scale-105 transition">
-            <div className="text-5xl">🛠️</div>
-
-            <h2 className="text-4xl font-bold mt-5">12</h2>
-
-            <p className="text-gray-600 mt-2">Services</p>
-          </div>
-
-          <div className="backdrop-blur-xl bg-white/40 rounded-3xl p-8 shadow-xl hover:scale-105 transition">
-            <div className="text-5xl">⚠️</div>
-
-            <h2 className="text-4xl font-bold mt-5">28</h2>
-
-            <p className="text-gray-600 mt-2">Issues</p>
-          </div>
-
-          <div className="backdrop-blur-xl bg-white/40 rounded-3xl p-8 shadow-xl hover:scale-105 transition">
-            <div className="text-5xl">👨‍🔧</div>
-
-            <h2 className="text-4xl font-bold mt-5">8</h2>
-
-            <p className="text-gray-600 mt-2">Technicians</p>
-          </div>
-
-          <div className="backdrop-blur-xl bg-white/40 rounded-3xl p-8 shadow-xl hover:scale-105 transition">
-            <div className="text-5xl">📋</div>
-
-            <h2 className="text-4xl font-bold mt-5">45</h2>
-
-            <p className="text-gray-600 mt-2">Bookings</p>
-          </div>
+        {/* Admin Statistics Row */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { label: "Active Services", val: "12", icon: FaTools, color: "text-teal-600 bg-teal-50 border-teal-100" },
+            { label: "Reported Issues", val: "28", icon: FaExclamationTriangle, color: "text-amber-600 bg-amber-50 border-amber-100" },
+            { label: "Total Technicians", val: "8", icon: FaUserTie, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
+            { label: "Total Bookings", val: "45", icon: FaClipboardList, color: "text-emerald-600 bg-emerald-50 border-emerald-100" }
+          ].map((stat, i) => (
+            <div 
+              key={i} 
+              className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow"
+            >
+              <div className="space-y-1">
+                <span className="text-slate-450 text-xs md:text-sm font-semibold block">{stat.label}</span>
+                <span className="text-2xl md:text-3xl font-extrabold text-slate-900">{stat.val}</span>
+              </div>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shrink-0 ${stat.color}`}>
+                <stat.icon className="text-xl" />
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="mt-20">
-          <div className="flex justify-between items-center mb-10">
-            <h2 className="text-4xl font-black text-gray-800">Quick Actions</h2>
+        {/* Quick Actions Modules */}
+        <div className="space-y-6">
+          <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+            <span className="w-1.5 h-6 bg-teal-600 rounded-full"></span>
+            Management Quick Actions
+          </h2>
 
-            <p className="text-gray-500">Choose an administration module</p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-10">
-            <div className="group backdrop-blur-xl bg-white/40 border border-white/40 rounded-[35px] shadow-2xl overflow-hidden hover:shadow-green-300/50 hover:-translate-y-3 transition duration-500">
-              <div className="bg-gradient-to-r from-green-500 to-green-700 h-2"></div>
-
-              <div className="p-10">
-                <div className="w-24 h-24 rounded-3xl bg-gradient-to-r from-green-500 to-green-700 flex items-center justify-center text-5xl shadow-xl group-hover:rotate-12 transition duration-500">
-                  🛠️
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Create Service Module */}
+            <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-teal-950/5 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6">
+              <div className="space-y-4">
+                <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-100 text-teal-650 flex items-center justify-center text-xl shadow-sm">
+                  <FaPlusCircle />
                 </div>
-
-                <h1 className="text-3xl font-bold mt-8">Create Service</h1>
-
-                <p className="text-gray-600 mt-4 leading-8">
-                  Add new appliance services that customers can book from the
-                  application.
+                <h3 className="text-xl font-bold text-slate-900">Manage Services</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  Configure new appliance categories, set custom descriptions, and upload base price estimates.
                 </p>
-
-                <Link to="/service-creation">
-                  <button className="mt-10 w-full py-4 rounded-2xl bg-gradient-to-r from-green-500 to-green-700 text-white text-lg font-bold hover:shadow-xl transition">
-                    Open Module →
-                  </button>
-                </Link>
               </div>
+              <Link to="/service-creation" className="mt-8">
+                <button className="w-full bg-slate-900 hover:bg-teal-650 text-white font-bold py-3 rounded-xl transition duration-300 flex items-center justify-center gap-2 text-sm cursor-pointer">
+                  Open Module
+                  <FaArrowRight className="text-xs" />
+                </button>
+              </Link>
             </div>
 
-            <div className="group backdrop-blur-xl bg-white/40 border border-white/40 rounded-[35px] shadow-2xl overflow-hidden hover:shadow-orange-300/50 hover:-translate-y-3 transition duration-500">
-              <div className="bg-gradient-to-r from-orange-500 to-red-500 h-2"></div>
-
-              <div className="p-10">
-                <div className="w-24 h-24 rounded-3xl bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center text-5xl shadow-xl group-hover:rotate-12 transition duration-500">
-                  ⚠️
+            {/* Manage Issues Module */}
+            <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-teal-950/5 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6">
+              <div className="space-y-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-650 flex items-center justify-center text-xl shadow-sm">
+                  <FaExclamationTriangle />
                 </div>
-
-                <h1 className="text-3xl font-bold mt-8">Manage Issues</h1>
-
-                <p className="text-gray-600 mt-4 leading-8">
-                  Create and manage appliance issues that customers can choose
-                  during booking.
+                <h3 className="text-xl font-bold text-slate-900">Manage Issues</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  Map potential appliance breakdowns to service categories and estimate custom technician quotes.
                 </p>
-
-                <Link to="/report-issue">
-                  <button className="mt-10 w-full py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 text-white text-lg font-bold hover:shadow-xl transition">
-                    Open Module →
-                  </button>
-                </Link>
               </div>
+              <Link to="/report-issue" className="mt-8">
+                <button className="w-full bg-slate-900 hover:bg-teal-650 text-white font-bold py-3 rounded-xl transition duration-300 flex items-center justify-center gap-2 text-sm cursor-pointer">
+                  Open Module
+                  <FaArrowRight className="text-xs" />
+                </button>
+              </Link>
             </div>
 
-            <div className="group backdrop-blur-xl bg-white/40 border border-white/40 rounded-[35px] shadow-2xl overflow-hidden hover:shadow-blue-300/50 hover:-translate-y-3 transition duration-500">
-              <div className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2"></div>
-
-              <div className="p-10">
-                <div className="w-24 h-24 rounded-3xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-5xl shadow-xl group-hover:rotate-12 transition duration-500">
-                  👨‍🔧
+            {/* Technician Management Module */}
+            <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-teal-950/5 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6">
+              <div className="space-y-4">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-650 flex items-center justify-center text-xl shadow-sm">
+                  <FaUserCheck />
                 </div>
-
-                <h1 className="text-3xl font-bold mt-8">
-                  Technician Assignment
-                </h1>
-
-                <p className="text-gray-600 mt-4 leading-8">
-                  Assign technicians to customer bookings and monitor completed
-                  services.
+                <h3 className="text-xl font-bold text-slate-900">Assign Technicians</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  Match pending repair requests with local skilled workers and monitor active workspace tasks.
                 </p>
-
-                <Link to="/technician-management">
-                  <button className="mt-10 w-full py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-lg font-bold hover:shadow-xl transition">
-                    Open Module →
-                  </button>
-                </Link>
               </div>
+              <Link to="/technician-management" className="mt-8">
+                <button className="w-full bg-slate-900 hover:bg-teal-650 text-white font-bold py-3 rounded-xl transition duration-300 flex items-center justify-center gap-2 text-sm cursor-pointer">
+                  Open Module
+                  <FaArrowRight className="text-xs" />
+                </button>
+              </Link>
             </div>
           </div>
         </div>
 
-        <div className="mt-20">
-          <div className="backdrop-blur-xl bg-white/40 border border-white/30 rounded-[35px] shadow-2xl p-10">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-4xl font-black text-gray-800">
-                Recent Activity
-              </h2>
+        {/* Recent Activity Section */}
+        <div className="space-y-6">
+          <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+            <span className="w-1.5 h-6 bg-teal-600 rounded-full"></span>
+            Recent System Activity
+          </h2>
 
-              <span className="px-5 py-2 rounded-full bg-green-100 text-green-700 font-semibold">
-                Live
-              </span>
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex justify-between items-center bg-white/60 rounded-2xl p-5 hover:scale-[1.02] transition">
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center text-white text-2xl">
-                    🛠️
+          <div className="bg-white border border-slate-200/65 rounded-3xl shadow-sm divide-y divide-slate-100">
+            {[
+              { title: "New Service Created", desc: "A new appliance listing has been configured and deployed.", time: "Just Now", icon: FaPlusCircle, color: "text-teal-655 bg-teal-50" },
+              { title: "Technician Assigned", desc: "Order #403 assigned to Technician Rohan (AC Specialist).", time: "10 mins ago", icon: FaUserCheck, color: "text-indigo-600 bg-indigo-50" },
+              { title: "Booking Completed", desc: "Technician Sneha marked washing machine workorder #398 as completed.", time: "Today", icon: FaClipboardList, color: "text-emerald-600 bg-emerald-50" }
+            ].map((act, index) => (
+              <div key={index} className="p-6 flex justify-between items-start gap-4 hover:bg-slate-50/40 transition-colors">
+                <div className="flex gap-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg ${act.color}`}>
+                    <act.icon />
                   </div>
-
-                  <div>
-                    <h3 className="font-bold text-lg">New Service Created</h3>
-
-                    <p className="text-gray-500">
-                      A new appliance service was added.
-                    </p>
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-slate-900 text-sm md:text-base">{act.title}</h4>
+                    <p className="text-slate-500 text-xs md:text-sm">{act.desc}</p>
                   </div>
                 </div>
-
-                <span className="text-gray-400">Just Now</span>
+                <span className="text-slate-400 text-xs font-semibold shrink-0">{act.time}</span>
               </div>
-
-              <div className="flex justify-between items-center bg-white/60 rounded-2xl p-5 hover:scale-[1.02] transition">
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl">
-                    👨‍🔧
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold text-lg">Technician Assigned</h3>
-
-                    <p className="text-gray-500">
-                      Technician assigned to a customer booking.
-                    </p>
-                  </div>
-                </div>
-
-                <span className="text-gray-400">10 mins ago</span>
-              </div>
-
-              <div className="flex justify-between items-center bg-white/60 rounded-2xl p-5 hover:scale-[1.02] transition">
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-full bg-purple-500 flex items-center justify-center text-white text-2xl">
-                    📋
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold text-lg">Booking Completed</h3>
-
-                    <p className="text-gray-500">
-                      A technician completed a customer service.
-                    </p>
-                  </div>
-                </div>
-
-                <span className="text-gray-400">Today</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        <div className="mt-20 mb-10">
-          <div className="backdrop-blur-xl bg-white/30 rounded-3xl border border-white/30 shadow-xl px-10 py-8 flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">
-                Flezo Admin Portal
-              </h2>
-
-              <p className="text-gray-500 mt-2">
-                Manage Services • Technicians • Issues • Bookings
-              </p>
-            </div>
-
-            <div className="text-right">
-              <p className="text-green-600 font-bold text-lg">Version 1.0</p>
-
-              <p className="text-gray-500">© 2026 All Rights Reserved</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
   );
 };

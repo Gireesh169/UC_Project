@@ -15,6 +15,8 @@ import CompleteTechnicianProfile from "./components/pages/CompleteTechnicianProf
 import ViewPastBooking from "./components/pages/ViewPastBooking";
 import UpdateProfile from "./components/pages/UpdateProfile";
 import BookingDetails from "./components/pages/BookingDetails";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 function App() {
   const [count, setCount] = useState(0);
 
@@ -25,25 +27,111 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
 
-        <Route path="/citizen-dashboard" element={<CitizenDashboard />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/worker-dashboard" element={<WorkerDashboard />} />
-        <Route path="/report-issue" element={<ReportIssue />} />
-        <Route path="*" element={<h1>404 Not Found</h1>} />
-        <Route path="/booking" element={<Booking />} />
-        <Route path="/service-creation" element={<ServiceCreation />} />
+        {/* Citizen Routes */}
+        <Route
+          path="/citizen-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["citizen"]}>
+              <CitizenDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/citizenHome"
+          element={
+            <ProtectedRoute allowedRoles={["citizen"]}>
+              <CitizenDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/report-issue"
+          element={
+            <ProtectedRoute allowedRoles={["citizen"]}>
+              <ReportIssue />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/booking"
+          element={
+            <ProtectedRoute allowedRoles={["citizen"]}>
+              <Booking />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/booking/:id"
+          element={
+            <ProtectedRoute allowedRoles={["citizen"]}>
+              <BookingDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Routes */}
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/service-creation"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <ServiceCreation />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/technician-management"
-          element={<TechnicianAssignment />}
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <TechnicianAssignment />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Worker Routes */}
+        <Route
+          path="/worker-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["worker"]}>
+              <WorkerDashboard />
+            </ProtectedRoute>
+          }
         />
         <Route
           path="/complete-technician-profile"
-          element={<CompleteTechnicianProfile />}
+          element={
+            <ProtectedRoute allowedRoles={["worker"]}>
+              <CompleteTechnicianProfile />
+            </ProtectedRoute>
+          }
         />
-        <Route path="/view-history" element={<ViewPastBooking />} />
-        <Route path="/citizenHome" element={<CitizenDashboard />} />
-        <Route path="/updateProfile" element={<UpdateProfile />} />
-        <Route path="/booking/:id" element={<BookingDetails />} />
+
+        {/* Shared Protected Routes */}
+        <Route
+          path="/view-history"
+          element={
+            <ProtectedRoute allowedRoles={["citizen", "worker", "admin"]}>
+              <ViewPastBooking />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/updateProfile"
+          element={
+            <ProtectedRoute allowedRoles={["citizen", "worker", "admin"]}>
+              <UpdateProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<h1>404 Not Found</h1>} />
       </Routes>
     </BrowserRouter>
   );

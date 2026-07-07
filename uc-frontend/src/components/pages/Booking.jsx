@@ -2,14 +2,17 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CitizenDashboardNav from "./CitizenDashboardNav";
+import { FaSearch, FaTools, FaAngleRight, FaInfoCircle } from "react-icons/fa";
 
 const Booking = () => {
   const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem("user"));
+  const userName = user?.name || "Customer";
 
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchServices();
@@ -18,7 +21,6 @@ const Booking = () => {
   const fetchServices = async () => {
     try {
       const response = await axios.get("http://localhost:8080/services/all");
-
       setServices(response.data);
       setLoading(false);
     } catch (error) {
@@ -31,60 +33,95 @@ const Booking = () => {
     navigate(`/booking/${service.id}`);
   };
 
+  // Filter services client-side for advanced UX
+  const filteredServices = services.filter((svc) =>
+    svc.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50 text-slate-800 pb-20">
       <CitizenDashboardNav />
 
-      <div className="pt-28 px-8 pb-10">
-        <div className="text-center">
-          <h1 className="text-5xl font-bold text-green-700">
+      <div className="pt-28 px-6 max-w-7xl mx-auto">
+        {/* Header Block */}
+        <div className="text-center max-w-xl mx-auto space-y-3 mb-12">
+          <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
             Book Home Services
           </h1>
-
-          <p className="text-gray-500 mt-3 text-lg">Welcome {user.name}</p>
+          <p className="text-slate-500 text-sm md:text-base">
+            Welcome back, <span className="text-teal-600 font-bold">{userName}</span>. Select a service category to get started.
+          </p>
         </div>
 
-        <div className="mt-12">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">
+        {/* Search Bar */}
+        <div className="max-w-md mx-auto mb-16 relative">
+          <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+            <FaSearch />
+          </span>
+          <input
+            type="text"
+            placeholder="Search for AC, TV, Refrigerator, etc..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200/80 rounded-2xl outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 shadow-sm transition-all"
+          />
+        </div>
+
+        {/* Services Section */}
+        <div>
+          <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 mb-8 flex items-center gap-2">
+            <span className="w-1.5 h-6 bg-teal-600 rounded-full"></span>
             Available Services
           </h2>
 
           {loading ? (
-            <div className="text-center text-lg">Loading Services...</div>
+            <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500">
+              <span className="w-10 h-10 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></span>
+              <span className="text-sm font-semibold">Loading Services...</span>
+            </div>
+          ) : filteredServices.length === 0 ? (
+            <div className="bg-white border border-slate-200/60 rounded-3xl p-12 text-center text-slate-550 max-w-md mx-auto space-y-4">
+              <FaInfoCircle className="text-teal-650 text-4xl mx-auto" />
+              <h3 className="text-lg font-bold text-slate-900">No Services Found</h3>
+              <p className="text-slate-555 text-sm">We couldn't find any services matching "{searchTerm}". Please try a different query.</p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {services.map((service) => (
+              {filteredServices.map((service) => (
                 <div
                   key={service.id}
-                  className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 transition duration-300 cursor-pointer"
+                  onClick={() => openService(service)}
+                  className="group bg-white rounded-3xl overflow-hidden border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-teal-950/5 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between"
                 >
-                  <img
-                    src={`/${service.name}.png`}
-                    alt={service.name}
-                    className="h-56 w-full object-cover"
-                    onError={(e) => {
-                      e.target.src = "/default.png";
-                    }}
-                  />
+                  <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden shrink-0">
+                    <img
+                      src={`/${service.name}.png`}
+                      alt={service.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        e.target.src = "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=60";
+                      }}
+                    />
+                    <div className="absolute top-4 right-4 bg-teal-650 text-white font-bold text-xs px-3 py-1 rounded-full shadow-md">
+                      Base price ₹{service.basePrice}
+                    </div>
+                  </div>
 
-                  <div className="p-5">
-                    <h2 className="text-xl font-bold">{service.name}</h2>
+                  <div className="p-6 flex flex-col justify-between flex-grow">
+                    <div className="space-y-2 mb-6">
+                      <h3 className="text-lg md:text-xl font-bold text-slate-900 group-hover:text-teal-650 transition-colors">
+                        {service.name}
+                      </h3>
+                      <p className="text-slate-500 text-xs md:text-sm line-clamp-2 leading-relaxed">
+                        {service.description}
+                      </p>
+                    </div>
 
-                    <p className="text-gray-500 mt-3 text-sm">
-                      {service.description}
-                    </p>
-
-                    <div className="flex justify-between items-center mt-6">
-                      <span className="text-green-600 font-bold">
-                        Starts ₹{service.basePrice}
-                      </span>
-
-                      <button
-                        onClick={() => openService(service)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-xl"
-                      >
-                        Book
-                      </button>
+                    <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-auto">
+                      <span className="text-teal-700 font-extrabold text-sm">Book Service</span>
+                      <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 group-hover:bg-teal-600 group-hover:text-white group-hover:border-teal-600 transition-colors">
+                        <FaAngleRight />
+                      </div>
                     </div>
                   </div>
                 </div>
