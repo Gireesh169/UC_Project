@@ -1,7 +1,10 @@
 import axios from "axios";
 
-// Add a request interceptor to the global axios instance
-axios.interceptors.request.use(
+const instance = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
+});
+
+instance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -14,4 +17,4 @@ axios.interceptors.request.use(
   }
 );
 
-export default axios;
+export default instance;

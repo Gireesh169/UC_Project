@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
-import { 
-  FaUserCheck, 
-  FaClock, 
-  FaHistory, 
-  FaTools, 
-  FaUser, 
-  FaMapMarkerAlt, 
-  FaExclamationTriangle,
+import axios from "../../api/axios";
+import {
+  FaUserCheck,
+  FaTools,
+  FaUser,
+  FaMapMarkerAlt,
   FaArrowLeft,
-  FaBriefcase
 } from "react-icons/fa";
 
 const TechnicianAssignment = () => {
@@ -26,12 +22,12 @@ const TechnicianAssignment = () => {
   const fetchData = async () => {
     try {
       const bookingsRes = await axios.get(
-        "http://localhost:8080/booking/pending",
+        "/booking/pending",
       );
       const historyRes = await axios.get(
-        "http://localhost:8080/booking/history",
+        "/booking/history",
       );
-      const techRes = await axios.get("http://localhost:8080/technicians/all");
+      const techRes = await axios.get("/technicians/all");
 
       setBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : []);
       setHistory(Array.isArray(historyRes.data) ? historyRes.data : []);
@@ -52,7 +48,7 @@ const TechnicianAssignment = () => {
 
     try {
       await axios.put(
-        `http://localhost:8080/booking/${bookingId}/assign/${technicianId}`,
+        `/booking/${bookingId}/assign/${technicianId}`,
       );
       alert("Technician Assigned Successfully");
       fetchData();
@@ -67,11 +63,11 @@ const TechnicianAssignment = () => {
       case "PENDING":
         return "bg-amber-50 text-amber-700 border-amber-200";
       case "ASSIGNED":
-        return "bg-blue-50 text-blue-750 border-blue-200";
+        return "bg-blue-50 text-secondary border-blue-150";
       case "IN_PROGRESS":
-        return "bg-indigo-50 text-indigo-750 border-indigo-200";
+        return "bg-blue-50 text-primary border-blue-250";
       case "COMPLETED":
-        return "bg-teal-50 text-teal-700 border-teal-200";
+        return "bg-emerald-50 text-emerald-700 border-emerald-250";
       default:
         return "bg-slate-50 text-slate-700 border-slate-200";
     }
@@ -79,9 +75,9 @@ const TechnicianAssignment = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-custom-bg flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-3">
-          <span className="w-10 h-10 border-4 border-teal-650 border-t-transparent rounded-full animate-spin"></span>
+          <span className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></span>
           <span className="text-sm text-slate-550 font-semibold">Loading Assignment Panel...</span>
         </div>
       </div>
@@ -89,13 +85,12 @@ const TechnicianAssignment = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 pb-20">
-      
-      {/* Header Bar */}
+    <div className="min-h-screen bg-custom-bg text-custom-text pb-20 font-sans">
+
       <div className="max-w-7xl mx-auto px-6 pt-6 flex items-center justify-between">
-        <Link 
-          to="/admin-dashboard" 
-          className="flex items-center gap-2 text-slate-505 hover:text-teal-655 font-bold transition-colors cursor-pointer text-sm"
+        <Link
+          to="/admin-dashboard"
+          className="flex items-center gap-2 text-slate-500 hover:text-primary font-bold transition-colors duration-200 cursor-pointer text-sm"
         >
           <FaArrowLeft />
           Back to Dashboard
@@ -103,10 +98,10 @@ const TechnicianAssignment = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 mt-8 space-y-12">
-        {/* Page Title */}
+
         <div className="space-y-2">
-          <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <FaUserCheck className="text-teal-650" />
+          <h1 className="text-3xl md:text-5xl font-extrabold text-navy tracking-tight flex items-center gap-3">
+            <FaUserCheck className="text-primary" />
             Technician Assignment
           </h1>
           <p className="text-slate-500 text-sm md:text-base">
@@ -114,18 +109,17 @@ const TechnicianAssignment = () => {
           </p>
         </div>
 
-        {/* Pending Assignments Section */}
         <div className="space-y-6">
-          <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 flex items-center gap-2">
-            <span className="w-1.5 h-6 bg-teal-600 rounded-full"></span>
+          <h2 className="text-xl md:text-2xl font-extrabold text-navy flex items-center gap-2">
+            <span className="w-1.5 h-6 bg-primary rounded-full"></span>
             Pending Assignments
           </h2>
 
-          <div className="bg-white border border-slate-200/65 rounded-3xl shadow-sm overflow-hidden">
+          <div className="bg-white border border-custom-border rounded-3xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-150 text-slate-500 font-bold text-xs uppercase tracking-wider">
+                  <tr className="bg-slate-50 border-b border-custom-border text-slate-500 font-bold text-xs uppercase tracking-wider">
                     <th className="py-4 px-6">Booking</th>
                     <th className="py-4 px-6">Customer</th>
                     <th className="py-4 px-6">Service</th>
@@ -136,7 +130,7 @@ const TechnicianAssignment = () => {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
+                <tbody className="divide-y divide-slate-100 text-sm text-slate-750">
                   {bookings.length === 0 ? (
                     <tr>
                       <td colSpan="7" className="py-12 text-center text-slate-500 font-semibold">
@@ -145,17 +139,17 @@ const TechnicianAssignment = () => {
                     </tr>
                   ) : (
                     bookings.map((booking) => (
-                      <tr key={booking.id} className="hover:bg-slate-50/40 transition-colors">
+                      <tr key={booking.id} className="hover:bg-slate-50/40 transition-colors duration-200">
                         <td className="py-4 px-6 font-mono font-bold text-slate-400">#{booking.id}</td>
-                        <td className="py-4 px-6 font-semibold text-slate-900">
+                        <td className="py-4 px-6 font-semibold text-navy">
                           <div className="flex items-center gap-2">
                             <FaUser className="text-slate-400 text-xs shrink-0" />
                             {booking.user?.name}
                           </div>
                         </td>
                         <td className="py-4 px-6">
-                          <div className="flex items-center gap-2 font-bold text-slate-900">
-                            <FaTools className="text-teal-650 text-xs shrink-0" />
+                          <div className="flex items-center gap-2 font-bold text-navy">
+                            <FaTools className="text-primary text-xs shrink-0" />
                             {booking.service?.name}
                           </div>
                         </td>
@@ -178,7 +172,7 @@ const TechnicianAssignment = () => {
                             <select
                               defaultValue=""
                               onChange={(e) => assignTechnician(booking.id, e.target.value)}
-                              className="w-full pl-3 pr-8 py-2 bg-slate-50 border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 rounded-xl outline-none text-slate-800 text-xs font-semibold appearance-none cursor-pointer"
+                              className="w-full pl-3 pr-8 py-2 bg-slate-50 border border-slate-200 focus:border-secondary focus:ring-1 focus:ring-secondary rounded-xl outline-none text-slate-800 text-xs font-semibold appearance-none cursor-pointer"
                             >
                               <option value="">Select Technician</option>
                               {technicians.map((tech) => (
@@ -201,18 +195,17 @@ const TechnicianAssignment = () => {
           </div>
         </div>
 
-        {/* Assignment History Section */}
         <div className="space-y-6">
-          <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 flex items-center gap-2">
-            <span className="w-1.5 h-6 bg-teal-600 rounded-full"></span>
+          <h2 className="text-xl md:text-2xl font-extrabold text-navy flex items-center gap-2">
+            <span className="w-1.5 h-6 bg-primary rounded-full"></span>
             Assignment History
           </h2>
 
-          <div className="bg-white border border-slate-200/65 rounded-3xl shadow-sm overflow-hidden">
+          <div className="bg-white border border-custom-border rounded-3xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-150 text-slate-500 font-bold text-xs uppercase tracking-wider">
+                  <tr className="bg-slate-50 border-b border-custom-border text-slate-500 font-bold text-xs uppercase tracking-wider">
                     <th className="py-4 px-6">Booking</th>
                     <th className="py-4 px-6">Customer</th>
                     <th className="py-4 px-6">Service</th>
@@ -222,7 +215,7 @@ const TechnicianAssignment = () => {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
+                <tbody className="divide-y divide-slate-100 text-sm text-slate-750">
                   {history.length === 0 ? (
                     <tr>
                       <td colSpan="6" className="py-12 text-center text-slate-500 font-semibold">
@@ -231,26 +224,26 @@ const TechnicianAssignment = () => {
                     </tr>
                   ) : (
                     history.map((booking) => (
-                      <tr key={booking.id} className="hover:bg-slate-50/40 transition-colors">
+                      <tr key={booking.id} className="hover:bg-slate-50/40 transition-colors duration-200">
                         <td className="py-4 px-6 font-mono font-bold text-slate-400">#{booking.id}</td>
-                        <td className="py-4 px-6 font-semibold text-slate-900">
+                        <td className="py-4 px-6 font-semibold text-navy">
                           <div className="flex items-center gap-2">
                             <FaUser className="text-slate-400 text-xs shrink-0" />
                             {booking.user?.name}
                           </div>
                         </td>
                         <td className="py-4 px-6">
-                          <div className="flex items-center gap-2 font-bold text-slate-900">
-                            <FaTools className="text-teal-650 text-xs shrink-0" />
+                          <div className="flex items-center gap-2 font-bold text-navy">
+                            <FaTools className="text-primary text-xs shrink-0" />
                             {booking.service?.name}
                           </div>
                         </td>
                         <td className="py-4 px-6 max-w-[150px] truncate" title={booking.issue?.title}>
                           {booking.issue?.title}
                         </td>
-                        <td className="py-4 px-6 font-semibold text-slate-900">
+                        <td className="py-4 px-6 font-semibold text-navy">
                           <div className="flex items-center gap-2">
-                            <FaUserCheck className="text-teal-650 text-xs shrink-0" />
+                            <FaUserCheck className="text-primary text-xs shrink-0" />
                             {booking.technician?.name || (
                               <span className="text-red-400 font-semibold italic text-xs">Not Assigned</span>
                             )}

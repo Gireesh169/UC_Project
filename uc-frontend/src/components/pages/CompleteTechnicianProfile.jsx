@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../../api/axios";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaUser, FaPhone, FaTools, FaCalendarAlt, FaIdCard, FaArrowLeft, FaSave } from "react-icons/fa";
@@ -24,7 +24,7 @@ const CompleteTechnicianProfile = () => {
   const checkExistingProfile = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/technicians/user/${user.id}`,
+        `/technicians/user/${user.id}`,
       );
 
       if (response.data) {
@@ -58,7 +58,7 @@ const CompleteTechnicianProfile = () => {
         },
       };
 
-      await axios.post("http://localhost:8080/technicians", technicianData);
+      await axios.post("/technicians", technicianData);
 
       alert("Profile Completed Successfully");
 
@@ -72,25 +72,23 @@ const CompleteTechnicianProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col justify-center items-center p-6 relative">
-      
-      {/* Back Button */}
-      <Link 
-        to="/worker-dashboard" 
-        className="absolute top-6 left-6 flex items-center gap-2 text-slate-500 hover:text-teal-600 font-bold transition-colors cursor-pointer text-sm"
+    <div className="min-h-screen bg-custom-bg text-custom-text flex flex-col justify-center items-center p-6 relative font-sans">
+
+      <Link
+        to="/worker-dashboard"
+        className="absolute top-6 left-6 flex items-center gap-2 text-slate-550 hover:text-primary font-bold transition-colors duration-200 cursor-pointer text-sm"
       >
         <FaArrowLeft />
         Back to Dashboard
       </Link>
 
-      <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200/60 shadow-sm p-8 space-y-6">
-        
-        {/* Header */}
+      <div className="w-full max-w-md bg-white rounded-3xl border border-custom-border shadow-sm p-8 space-y-6">
+
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-2xl bg-teal-50 border border-teal-100 text-teal-650 flex items-center justify-center text-2xl mx-auto">
+          <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 text-primary flex items-center justify-center text-2xl mx-auto shadow-sm">
             <FaIdCard />
           </div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-2xl font-extrabold text-navy tracking-tight">
             Complete Profile
           </h1>
           <p className="text-slate-500 text-sm">
@@ -98,7 +96,6 @@ const CompleteTechnicianProfile = () => {
           </p>
         </div>
 
-        {/* Inputs Form */}
         <div className="space-y-4">
           <div>
             <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="name">
@@ -115,7 +112,7 @@ const CompleteTechnicianProfile = () => {
                 placeholder="Enter Name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 transition-all duration-300 text-sm font-medium"
               />
             </div>
           </div>
@@ -135,7 +132,7 @@ const CompleteTechnicianProfile = () => {
                 placeholder="Enter Phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 transition-all duration-300 text-sm font-medium"
               />
             </div>
           </div>
@@ -155,7 +152,7 @@ const CompleteTechnicianProfile = () => {
                 placeholder="AC, Refrigerator, Washing Machine"
                 value={formData.skills}
                 onChange={handleChange}
-                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 transition-all duration-300 text-sm font-medium"
               />
             </div>
           </div>
@@ -175,7 +172,7 @@ const CompleteTechnicianProfile = () => {
                 placeholder="Experience in Years"
                 value={formData.experience}
                 onChange={handleChange}
-                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 transition-all duration-300 text-sm font-medium"
               />
             </div>
           </div>
@@ -183,7 +180,7 @@ const CompleteTechnicianProfile = () => {
           <button
             onClick={saveProfile}
             disabled={loading}
-            className="w-full bg-teal-650 hover:bg-teal-700 disabled:bg-teal-800 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-teal-600/10 transition duration-300 flex items-center justify-center gap-2 cursor-pointer text-sm"
+            className="w-full bg-primary hover:bg-primary-hover disabled:bg-primary/60 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-primary/20 transition duration-300 flex items-center justify-center gap-2 cursor-pointer text-sm hover:-translate-y-0.5 active:translate-y-0"
           >
             {loading ? (
               <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>

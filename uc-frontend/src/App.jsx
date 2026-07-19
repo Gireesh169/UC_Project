@@ -27,7 +27,6 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
 
-        {/* Citizen Routes */}
         <Route
           path="/citizen-dashboard"
           element={
@@ -41,14 +40,6 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["citizen"]}>
               <CitizenDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/report-issue"
-          element={
-            <ProtectedRoute allowedRoles={["citizen"]}>
-              <ReportIssue />
             </ProtectedRoute>
           }
         />
@@ -69,12 +60,19 @@ function App() {
           }
         />
 
-        {/* Admin Routes */}
         <Route
           path="/admin-dashboard"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/report-issue"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <ReportIssue />
             </ProtectedRoute>
           }
         />
@@ -95,7 +93,6 @@ function App() {
           }
         />
 
-        {/* Worker Routes */}
         <Route
           path="/worker-dashboard"
           element={
@@ -113,7 +110,6 @@ function App() {
           }
         />
 
-        {/* Shared Protected Routes */}
         <Route
           path="/view-history"
           element={

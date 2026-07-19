@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../api/axios";
 import CitizenDashboardNav from "./CitizenDashboardNav";
 import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaLock, FaUserCog, FaSave } from "react-icons/fa";
 
@@ -34,7 +34,7 @@ function UpdateProfile() {
     setMessage("");
 
     axios
-      .put(`http://localhost:8080/users/edit/${user.id}`, user)
+      .put(`/users/edit/${user.id}`, user)
       .then((response) => {
         setMessage("Profile Updated Successfully!");
         localStorage.setItem("user", JSON.stringify(response.data));
@@ -48,18 +48,17 @@ function UpdateProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 pb-20">
+    <div className="min-h-screen bg-custom-bg text-custom-text pb-20 font-sans">
       <CitizenDashboardNav />
 
       <div className="pt-28 flex justify-center px-6">
-        <div className="w-full max-w-xl bg-white rounded-3xl border border-slate-200/60 shadow-sm p-8 space-y-8">
-          
-          {/* Header */}
+        <div className="w-full max-w-xl bg-white rounded-3xl border border-custom-border shadow-sm p-8 space-y-8">
+
           <div className="text-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-teal-50 border border-teal-100 text-teal-650 flex items-center justify-center text-2xl mx-auto shadow-sm">
+            <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 text-primary flex items-center justify-center text-2xl mx-auto shadow-sm">
               <FaUserCog />
             </div>
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-navy tracking-tight">
               Update Profile
             </h2>
             <p className="text-slate-500 text-sm">
@@ -67,18 +66,16 @@ function UpdateProfile() {
             </p>
           </div>
 
-          {/* Success / Error Message Banner */}
           {message && (
             <div className={`p-4 rounded-2xl text-center font-semibold text-sm border ${
               message.includes("Successfully")
-                ? "bg-teal-50 text-teal-750 border-teal-200"
-                : "bg-red-50 text-red-750 border-red-200"
+                ? "bg-blue-50 text-primary border-blue-200"
+                : "bg-red-50 text-red-500 border-red-200"
             }`}>
               {message}
             </div>
           )}
 
-          {/* Form */}
           <div className="space-y-6">
             <div>
               <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="name">
@@ -95,7 +92,7 @@ function UpdateProfile() {
                   value={user.name || ""}
                   onChange={handleChange}
                   placeholder="John Doe"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 transition-all duration-300 text-sm font-medium"
                 />
               </div>
             </div>
@@ -115,7 +112,7 @@ function UpdateProfile() {
                   value={user.email || ""}
                   onChange={handleChange}
                   placeholder="john@example.com"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 transition-all duration-300 text-sm font-medium"
                 />
               </div>
             </div>
@@ -135,7 +132,7 @@ function UpdateProfile() {
                   value={user.phone || ""}
                   onChange={handleChange}
                   placeholder="+91 98765 43210"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 transition-all duration-300 text-sm font-medium"
                 />
               </div>
             </div>
@@ -155,7 +152,7 @@ function UpdateProfile() {
                   onChange={handleChange}
                   rows="3"
                   placeholder="House No, Street, Landmark, Area, City, Pincode"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 resize-none transition-all text-sm font-medium"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 resize-none transition-all duration-300 text-sm font-medium"
                 />
               </div>
             </div>
@@ -175,7 +172,7 @@ function UpdateProfile() {
                   value={user.password || ""}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-teal-505 focus:ring-1 focus:ring-teal-505 rounded-2xl outline-none text-slate-900 placeholder-slate-400 transition-all text-sm font-medium"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 transition-all duration-300 text-sm font-medium"
                 />
               </div>
             </div>
@@ -183,7 +180,7 @@ function UpdateProfile() {
             <button
               onClick={updateProfile}
               disabled={loading}
-              className="w-full bg-teal-650 hover:bg-teal-700 disabled:bg-teal-800 text-white font-bold py-3.5 rounded-2xl transition duration-300 shadow-lg shadow-teal-650/10 flex items-center justify-center gap-2 cursor-pointer text-sm"
+              className="w-full bg-primary hover:bg-primary-hover disabled:bg-primary/60 text-white font-bold py-3.5 rounded-2xl transition duration-300 shadow-lg shadow-primary/20 flex items-center justify-center gap-2 cursor-pointer text-sm hover:-translate-y-0.5 active:translate-y-0"
             >
               {loading ? (
                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>

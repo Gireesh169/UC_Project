@@ -11,9 +11,9 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   try {
     const user = JSON.parse(userStr);
-    
+
     if (allowedRoles && !allowedRoles.includes(user.role)) {
-      // User is logged in but does not have the required role
+
       if (user.role === "citizen") {
         return <Navigate to="/citizen-dashboard" replace />;
       } else if (user.role === "worker") {

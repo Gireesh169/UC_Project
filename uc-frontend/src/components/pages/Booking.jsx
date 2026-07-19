@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 import CitizenDashboardNav from "./CitizenDashboardNav";
-import { FaSearch, FaTools, FaAngleRight, FaInfoCircle } from "react-icons/fa";
+import { FaSearch, FaAngleRight, FaInfoCircle } from "react-icons/fa";
 
 const Booking = () => {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ const Booking = () => {
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/services/all");
+      const response = await axios.get("/services/all");
       setServices(response.data);
       setLoading(false);
     } catch (error) {
@@ -33,27 +33,25 @@ const Booking = () => {
     navigate(`/booking/${service.id}`);
   };
 
-  // Filter services client-side for advanced UX
   const filteredServices = services.filter((svc) =>
     svc.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 pb-20">
+    <div className="min-h-screen bg-custom-bg text-custom-text pb-20 font-sans">
       <CitizenDashboardNav />
 
       <div className="pt-28 px-6 max-w-7xl mx-auto">
         {/* Header Block */}
         <div className="text-center max-w-xl mx-auto space-y-3 mb-12">
-          <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-navy tracking-tight">
             Book Home Services
           </h1>
           <p className="text-slate-500 text-sm md:text-base">
-            Welcome back, <span className="text-teal-600 font-bold">{userName}</span>. Select a service category to get started.
+            Welcome back, <span className="text-primary font-bold">{userName}</span>. Select a service category to get started.
           </p>
         </div>
 
-        {/* Search Bar */}
         <div className="max-w-md mx-auto mb-16 relative">
           <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
             <FaSearch />
@@ -63,27 +61,26 @@ const Booking = () => {
             placeholder="Search for AC, TV, Refrigerator, etc..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200/80 rounded-2xl outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 shadow-sm transition-all"
+            className="w-full pl-11 pr-4 py-3 bg-white border border-custom-border rounded-2xl outline-none focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-all duration-300 text-navy"
           />
         </div>
 
-        {/* Services Section */}
         <div>
-          <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 mb-8 flex items-center gap-2">
-            <span className="w-1.5 h-6 bg-teal-600 rounded-full"></span>
+          <h2 className="text-xl md:text-2xl font-extrabold text-navy mb-8 flex items-center gap-2">
+            <span className="w-1.5 h-6 bg-primary rounded-full"></span>
             Available Services
           </h2>
 
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500">
-              <span className="w-10 h-10 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></span>
+              <span className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></span>
               <span className="text-sm font-semibold">Loading Services...</span>
             </div>
           ) : filteredServices.length === 0 ? (
-            <div className="bg-white border border-slate-200/60 rounded-3xl p-12 text-center text-slate-550 max-w-md mx-auto space-y-4">
-              <FaInfoCircle className="text-teal-650 text-4xl mx-auto" />
-              <h3 className="text-lg font-bold text-slate-900">No Services Found</h3>
-              <p className="text-slate-555 text-sm">We couldn't find any services matching "{searchTerm}". Please try a different query.</p>
+            <div className="bg-white border border-custom-border rounded-3xl p-12 text-center text-slate-500 max-w-md mx-auto space-y-4 shadow-sm">
+              <FaInfoCircle className="text-primary text-4xl mx-auto" />
+              <h3 className="text-lg font-bold text-navy">No Services Found</h3>
+              <p className="text-slate-500 text-sm">We couldn't find any services matching "{searchTerm}". Please try a different query.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -91,7 +88,7 @@ const Booking = () => {
                 <div
                   key={service.id}
                   onClick={() => openService(service)}
-                  className="group bg-white rounded-3xl overflow-hidden border border-slate-200/60 shadow-sm hover:shadow-xl hover:shadow-teal-950/5 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between"
+                  className="group bg-white rounded-3xl overflow-hidden border border-custom-border shadow-sm hover:shadow-xl hover:shadow-slate-200/55 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between"
                 >
                   <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden shrink-0">
                     <img
@@ -102,14 +99,14 @@ const Booking = () => {
                         e.target.src = "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=60";
                       }}
                     />
-                    <div className="absolute top-4 right-4 bg-teal-650 text-white font-bold text-xs px-3 py-1 rounded-full shadow-md">
+                    <div className="absolute top-4 right-4 bg-primary text-white font-bold text-xs px-3.5 py-1.5 rounded-full shadow-md shadow-primary/25">
                       Base price ₹{service.basePrice}
                     </div>
                   </div>
 
                   <div className="p-6 flex flex-col justify-between flex-grow">
                     <div className="space-y-2 mb-6">
-                      <h3 className="text-lg md:text-xl font-bold text-slate-900 group-hover:text-teal-650 transition-colors">
+                      <h3 className="text-lg md:text-xl font-bold text-navy group-hover:text-primary transition-colors duration-200">
                         {service.name}
                       </h3>
                       <p className="text-slate-500 text-xs md:text-sm line-clamp-2 leading-relaxed">
@@ -118,8 +115,8 @@ const Booking = () => {
                     </div>
 
                     <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-auto">
-                      <span className="text-teal-700 font-extrabold text-sm">Book Service</span>
-                      <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 group-hover:bg-teal-600 group-hover:text-white group-hover:border-teal-600 transition-colors">
+                      <span className="text-primary font-extrabold text-sm">Book Service</span>
+                      <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-colors duration-200">
                         <FaAngleRight />
                       </div>
                     </div>
