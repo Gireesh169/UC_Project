@@ -19,4 +19,7 @@ public class ServiceEntity {
     private String name; // AC Repair
     private String description;
     private double basePrice;
+
+    @jakarta.persistence.Column(columnDefinition = "LONGTEXT")
+    private String imageUrl;
 }

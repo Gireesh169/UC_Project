@@ -22,6 +22,9 @@ public class Issue {
     private String description;
     private double price;
 
+    @jakarta.persistence.Column(columnDefinition = "LONGTEXT")
+    private String imageUrl;
+
     @ManyToOne
     @JoinColumn(name = "service_id")
     private ServiceEntity service;

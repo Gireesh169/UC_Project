@@ -12,7 +12,7 @@ import {
   FaMapMarkerAlt,
   FaShieldAlt,
   FaClock,
-  FaThumbsUp
+  FaThumbsUp,
 } from "react-icons/fa";
 
 export default function Landing() {
@@ -27,66 +27,73 @@ export default function Landing() {
       title: "AC Services",
       desc: "Deep cleaning, gas charging, leak repairs, and complete installation/uninstallation.",
       price: "₹299",
-      image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60"
+      image:
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=60",
     },
     {
       title: "Refrigerator Repair",
       desc: "Fixing cooling issues, thermostat replacements, gas leakage, and compressor repairs.",
       price: "₹349",
-      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=500&auto=format&fit=crop&q=60"
+      image:
+        "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=500&auto=format&fit=crop&q=60",
     },
     {
       title: "Washing Machine",
       desc: "Resolving drum issues, drainage problems, motor malfunctions, and general servicing.",
       price: "₹249",
-      image: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=500&auto=format&fit=crop&q=60"
+      image:
+        "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=500&auto=format&fit=crop&q=60",
     },
     {
       title: "Television Repair",
       desc: "LED/LCD screen repairs, sound issues, power board failures, and port replacements.",
       price: "₹399",
-      image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=500&auto=format&fit=crop&q=60"
-    }
+      image:
+        "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=500&auto=format&fit=crop&q=60",
+    },
   ];
 
   const testimonials = [
     {
       name: "Rohan Sharma",
       role: "Homeowner",
-      content: "The service was incredibly fast! The technician arrived within an hour of booking and fixed my AC in no time. Highly recommended!",
-      rating: 5
+      content:
+        "The service was incredibly fast! The technician arrived within an hour of booking and fixed my AC in no time. Highly recommended!",
+      rating: 5,
     },
     {
       name: "Sneha Patel",
       role: "Apartment Resident",
-      content: "Super convenient platform. I booked a washing machine repair late at night, and they had someone over by 10 AM. Excellent service.",
-      rating: 5
+      content:
+        "Super convenient platform. I booked a washing machine repair late at night, and they had someone over by 10 AM. Excellent service.",
+      rating: 5,
     },
     {
       name: "Amit Verma",
       role: "Office Manager",
-      content: "Transparent pricing and verified technicians. I love that there are no hidden fees. B1K Services is my go-to for all repairs.",
-      rating: 5
-    }
+      content:
+        "Transparent pricing and verified technicians. I love that there are no hidden fees. B1K Services is my go-to for all repairs.",
+      rating: 5,
+    },
   ];
 
   const faqs = [
     {
       q: "How does booking a service work on B1K Services?",
-      a: "It's simple! Sign up as a customer, choose your desired appliance service, select the specific issue you're facing, enter your address, and submit. We'll assign a certified technician to your booking."
+      a: "It's simple! Sign up as a customer, choose your desired appliance service, select the specific issue you're facing, enter your address, and submit. We'll assign a certified technician to your booking.",
     },
     {
       q: "Are the technicians background verified?",
-      a: "Yes, all technicians on B1K Services undergo rigorous background verification and skill assessment tests to ensure your safety and high service quality."
+      a: "Yes, all technicians on B1K Services undergo rigorous background verification and skill assessment tests to ensure your safety and high service quality.",
     },
     {
       q: "What is the warranty on repairs?",
-      a: "We offer a 30-day warranty on all repairs and parts replaced during the service. If the issue recurs within 30 days, we'll fix it for free."
+      a: "We offer a 30-day warranty on all repairs and parts replaced during the service. If the issue recurs within 30 days, we'll fix it for free.",
     },
     {
       q: "Can I reschedule or cancel my booking?",
-      a: "Absolutely. You can cancel or reschedule your booking at any time directly through your dashboard before the technician has been assigned or started working."
-    }
+      a: "Absolutely. You can cancel or reschedule your booking at any time directly through your dashboard before the technician has been assigned or started working.",
+    },
   ];
 
   return (
@@ -95,14 +102,38 @@ export default function Landing() {
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/90 border-b border-custom-border/80">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <Link to="/" className="flex items-center justify-center">
-            <img src={logo} alt="B1K Services Logo" className="h-16 md:h-18 w-auto object-contain transition-all duration-300 hover:scale-105" />
+            <img
+              src={logo}
+              alt="B1K Services Logo"
+              className="h-16 md:h-18 w-auto object-contain transition-all duration-300 hover:scale-105"
+            />
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#services" className="text-slate-600 hover:text-primary font-medium transition-colors">Services</a>
-            <a href="#about" className="text-slate-600 hover:text-primary font-medium transition-colors">Why Us</a>
-            <a href="#testimonials" className="text-slate-600 hover:text-primary font-medium transition-colors">Reviews</a>
-            <a href="#faqs" className="text-slate-600 hover:text-primary font-medium transition-colors">FAQs</a>
+            <a
+              href="#services"
+              className="text-slate-600 hover:text-primary font-medium transition-colors"
+            >
+              Services
+            </a>
+            <a
+              href="#about"
+              className="text-slate-600 hover:text-primary font-medium transition-colors"
+            >
+              Why Us
+            </a>
+            <a
+              href="#testimonials"
+              className="text-slate-600 hover:text-primary font-medium transition-colors"
+            >
+              Reviews
+            </a>
+            <a
+              href="#faqs"
+              className="text-slate-600 hover:text-primary font-medium transition-colors"
+            >
+              FAQs
+            </a>
           </nav>
 
           <div className="flex items-center gap-4">
@@ -139,7 +170,9 @@ export default function Landing() {
               </span>
             </h1>
             <p className="text-lg text-slate-600 max-w-lg leading-relaxed">
-              Book certified technicians for AC repair, refrigerator servicing, washing machine troubleshooting, TV repair, and more. Transparent pricing and guaranteed satisfaction.
+              Book certified technicians for AC repair, refrigerator servicing,
+              washing machine troubleshooting, TV repair, and more. Transparent
+              pricing and guaranteed satisfaction.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
@@ -161,15 +194,21 @@ export default function Landing() {
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-custom-border">
               <div className="flex items-center gap-3">
                 <FaShieldAlt className="text-primary text-xl shrink-0" />
-                <span className="text-sm font-bold text-slate-700">Verified Pros</span>
+                <span className="text-sm font-bold text-slate-700">
+                  Verified Pros
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <FaClock className="text-primary text-xl shrink-0" />
-                <span className="text-sm font-bold text-slate-700">Quick Turnaround</span>
+                <span className="text-sm font-bold text-slate-700">
+                  Quick Turnaround
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <FaThumbsUp className="text-primary text-xl shrink-0" />
-                <span className="text-sm font-bold text-slate-700">30-Day Warranty</span>
+                <span className="text-sm font-bold text-slate-700">
+                  30-Day Warranty
+                </span>
               </div>
             </div>
           </div>
@@ -196,7 +235,8 @@ export default function Landing() {
               Our Professional Services
             </h2>
             <p className="text-lg text-slate-600">
-              Get premium quality repairs and installation for all major home appliance brands.
+              Get premium quality repairs and installation for all major home
+              appliance brands.
             </p>
           </div>
 
@@ -218,7 +258,9 @@ export default function Landing() {
                 </div>
                 <div className="p-6 space-y-3">
                   <h3 className="text-xl font-bold text-navy">{svc.title}</h3>
-                  <p className="text-slate-650 text-sm leading-relaxed">{svc.desc}</p>
+                  <p className="text-slate-650 text-sm leading-relaxed">
+                    {svc.desc}
+                  </p>
                   <div className="pt-2">
                     <Link
                       to="/login"
@@ -236,21 +278,26 @@ export default function Landing() {
       </section>
 
       {/* Why Choose Us */}
-      <section id="about" className="py-24 bg-custom-bg border-y border-custom-border/50">
+      <section
+        id="about"
+        className="py-24 bg-custom-bg border-y border-custom-border/50"
+      >
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div className="space-y-6">
             <h2 className="text-4xl font-extrabold text-navy tracking-tight">
               Why B1K Services is the Best Choice for You
             </h2>
             <p className="text-lg text-slate-600 leading-relaxed">
-              We understand how disruptive appliance failures can be. Our platform is built to solve your problems as fast, professionally, and stress-free as possible.
+              We understand how disruptive appliance failures can be. Our
+              platform is built to solve your problems as fast, professionally,
+              and stress-free as possible.
             </p>
             <div className="space-y-4 pt-4">
               {[
                 "Certified, background-verified technicians with years of hands-on expertise.",
                 "100% transparent pricing—you know the cost before the work starts.",
                 "Hassle-free online booking and secure tracking from start to finish.",
-                "Dedicated customer support team available to assist with any questions."
+                "Dedicated customer support team available to assist with any questions.",
               ].map((item, i) => (
                 <div key={i} className="flex gap-4">
                   <FaCheckCircle className="text-primary text-xl shrink-0 mt-0.5" />
@@ -261,24 +308,41 @@ export default function Landing() {
           </div>
           <div className="grid grid-cols-2 gap-6">
             <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-custom-border space-y-4 hover:shadow-md transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-primary flex items-center justify-center text-xl font-bold">1</div>
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-primary flex items-center justify-center text-xl font-bold">
+                1
+              </div>
               <h4 className="text-lg font-bold text-navy">Select Service</h4>
-              <p className="text-slate-600 text-sm">Choose from a variety of appliance repairs and servicing options.</p>
+              <p className="text-slate-600 text-sm">
+                Choose from a variety of appliance repairs and servicing
+                options.
+              </p>
             </div>
             <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-custom-border space-y-4 mt-6 hover:shadow-md transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-primary flex items-center justify-center text-xl font-bold">2</div>
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-primary flex items-center justify-center text-xl font-bold">
+                2
+              </div>
               <h4 className="text-lg font-bold text-navy">Choose Issue</h4>
-              <p className="text-slate-655 text-sm">Specify the exact problem to get a real-time price estimate.</p>
+              <p className="text-slate-655 text-sm">
+                Specify the exact problem to get a real-time price estimate.
+              </p>
             </div>
             <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-custom-border space-y-4 hover:shadow-md transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-primary flex items-center justify-center text-xl font-bold">3</div>
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-primary flex items-center justify-center text-xl font-bold">
+                3
+              </div>
               <h4 className="text-lg font-bold text-navy">Assign Technician</h4>
-              <p className="text-slate-600 text-sm">We automatically assign a certified professional near your area.</p>
+              <p className="text-slate-600 text-sm">
+                We automatically assign a certified professional near your area.
+              </p>
             </div>
             <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-custom-border space-y-4 mt-6 hover:shadow-md transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-primary flex items-center justify-center text-xl font-bold">4</div>
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-primary flex items-center justify-center text-xl font-bold">
+                4
+              </div>
               <h4 className="text-lg font-bold text-navy">Repair Done</h4>
-              <p className="text-slate-600 text-sm">The expert visits your doorstep, repairs, and guarantees work.</p>
+              <p className="text-slate-600 text-sm">
+                The expert visits your doorstep, repairs, and guarantees work.
+              </p>
             </div>
           </div>
         </div>
@@ -292,19 +356,25 @@ export default function Landing() {
               Customer Testimonials
             </h2>
             <p className="text-lg text-slate-600">
-              See what our customers are saying about our premium home repair services.
+              See what our customers are saying about our premium home repair
+              services.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((t, i) => (
-              <div key={i} className="bg-custom-bg p-8 rounded-[2rem] border border-custom-border shadow-sm hover:shadow-md transition-all duration-305 relative">
+              <div
+                key={i}
+                className="bg-custom-bg p-8 rounded-[2rem] border border-custom-border shadow-sm hover:shadow-md transition-all duration-305 relative"
+              >
                 <div className="flex gap-1 text-amber-500 mb-6">
                   {[...Array(t.rating)].map((_, idx) => (
                     <FaStar key={idx} />
                   ))}
                 </div>
-                <p className="text-slate-700 italic leading-relaxed mb-6">"{t.content}"</p>
+                <p className="text-slate-700 italic leading-relaxed mb-6">
+                  "{t.content}"
+                </p>
                 <div>
                   <h4 className="font-bold text-navy">{t.name}</h4>
                   <p className="text-slate-500 text-sm">{t.role}</p>
@@ -316,14 +386,18 @@ export default function Landing() {
       </section>
 
       {/* FAQs */}
-      <section id="faqs" className="py-24 bg-custom-bg border-t border-custom-border/50">
+      <section
+        id="faqs"
+        className="py-24 bg-custom-bg border-t border-custom-border/50"
+      >
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl font-extrabold text-navy tracking-tight">
               Frequently Asked Questions
             </h2>
             <p className="text-lg text-slate-600">
-              Clear answers to your common questions about booking, pricing, and warranty.
+              Clear answers to your common questions about booking, pricing, and
+              warranty.
             </p>
           </div>
 
@@ -347,7 +421,9 @@ export default function Landing() {
                 </button>
                 {activeFaq === idx && (
                   <div className="px-6 pb-6 pt-1 text-slate-600 border-t border-slate-50 animate-fadeIn">
-                    <p className="pl-7 leading-relaxed text-slate-600">{faq.a}</p>
+                    <p className="pl-7 leading-relaxed text-slate-600">
+                      {faq.a}
+                    </p>
                   </div>
                 )}
               </div>
@@ -361,20 +437,53 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12">
           <div className="space-y-4">
             <Link to="/" className="inline-block">
-              <img src={logo} alt="B1K Services Logo" className="h-20 w-auto object-contain transition-all duration-300 hover:scale-105" />
+              <img
+                src={logo}
+                alt="B1K Services Logo"
+                className="h-20 w-auto object-contain transition-all duration-300 hover:scale-105"
+              />
             </Link>
             <p className="text-sm leading-relaxed text-slate-400">
-              High-quality, reliable home appliance repair and booking platform. Fast turnaround, verified experts, and transparent pricing.
+              High-quality, reliable home appliance repair and booking platform.
+              Fast turnaround, verified experts, and transparent pricing.
             </p>
           </div>
 
           <div className="space-y-4">
             <h4 className="text-white font-bold text-lg">Quick Links</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#services" className="hover:text-light-blue transition-colors">Services</a></li>
-              <li><a href="#about" className="hover:text-light-blue transition-colors">Why Choose Us</a></li>
-              <li><a href="#testimonials" className="hover:text-light-blue transition-colors">Reviews</a></li>
-              <li><a href="#faqs" className="hover:text-light-blue transition-colors">FAQs</a></li>
+              <li>
+                <a
+                  href="#services"
+                  className="hover:text-light-blue transition-colors"
+                >
+                  Services
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#about"
+                  className="hover:text-light-blue transition-colors"
+                >
+                  Why Choose Us
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#testimonials"
+                  className="hover:text-light-blue transition-colors"
+                >
+                  Reviews
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#faqs"
+                  className="hover:text-light-blue transition-colors"
+                >
+                  FAQs
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -410,8 +519,12 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 text-center text-xs text-slate-500 flex flex-col md:flex-row justify-between items-center gap-4">
           <p>© 2026 B1K Services. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-light-blue transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-light-blue transition-colors">Terms of Service</a>
+            <a href="#" className="hover:text-light-blue transition-colors">
+              Privacy Policy
+            </a>
+            <a href="#" className="hover:text-light-blue transition-colors">
+              Terms of Service
+            </a>
           </div>
         </div>
       </footer>

@@ -92,11 +92,11 @@ const Booking = () => {
                 >
                   <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden shrink-0">
                     <img
-                      src={`/${service.name}.png`}
+                      src={service.imageUrl || `/${service.name}.png`}
                       alt={service.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => {
-                        e.target.src = "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=60";
+                        e.target.src = "/default-service.png";
                       }}
                     />
                     <div className="absolute top-4 right-4 bg-primary text-white font-bold text-xs px-3.5 py-1.5 rounded-full shadow-md shadow-primary/25">

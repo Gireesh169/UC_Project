@@ -40,6 +40,10 @@ public class IssueController {
                 Double.parseDouble(request.get("price").toString())
         );
 
+        if (request.containsKey("imageUrl") && request.get("imageUrl") != null) {
+            issue.setImageUrl(request.get("imageUrl").toString());
+        }
+
         Long serviceId=
                 Long.parseLong(request.get("serviceId").toString());
 

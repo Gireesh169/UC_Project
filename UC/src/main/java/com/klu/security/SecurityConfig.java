@@ -58,9 +58,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/booking/*/status").hasAnyRole("TECHNICIAN", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/technicians/user/**").hasAnyRole("TECHNICIAN", "ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/technicians/update/**").hasAnyRole("TECHNICIAN", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/technicians").hasAnyRole("TECHNICIAN", "ADMIN")
 
                 // ADMIN role users, technicians, services, issues
-                .requestMatchers(HttpMethod.POST, "/technicians").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/technicians/all").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/services/create").hasRole("ADMIN")

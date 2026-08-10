@@ -18,7 +18,9 @@ import {
   FaMapMarkerAlt,
   FaUser,
   FaClock,
+  FaImage,
 } from "react-icons/fa";
+import { AVAILABLE_IMAGES } from "../../utils/availableImages";
 
 const ReportIssue = () => {
 
@@ -45,7 +47,10 @@ const ReportIssue = () => {
     description: "",
     price: "",
     serviceId: "",
+    imageUrl: "",
   });
+
+  const issuePresets = AVAILABLE_IMAGES;
   const [formMessage, setFormMessage] = useState("");
   const [formSuccess, setFormSuccess] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
@@ -119,6 +124,17 @@ const ReportIssue = () => {
     });
   };
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, imageUrl: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleServiceIssueCreation = async (e) => {
     e.preventDefault();
     setFormLoading(true);
@@ -133,6 +149,7 @@ const ReportIssue = () => {
         description: "",
         price: "",
         serviceId: "",
+        imageUrl: "",
       });
     } catch (error) {
       console.log(error);
@@ -344,11 +361,29 @@ const ReportIssue = () => {
                       currentBookings.map((b) => (
                         <tr key={b.id} className="hover:bg-slate-50/40 transition-colors duration-200">
                           <td className="py-4 px-6 font-mono font-bold text-slate-400">#{b.id}</td>
-                          <td className="py-4 px-6 font-bold text-navy">{b.service?.name}</td>
                           <td className="py-4 px-6">
-                            <div className="space-y-0.5">
-                              <span className="font-semibold text-slate-800 block truncate max-w-[180px]" title={b.issue?.title}>{b.issue?.title}</span>
-                              <span className="text-xs text-slate-450 truncate max-w-[200px] block" title={b.issue?.description}>{b.issue?.description}</span>
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={b.service?.imageUrl || `/${b.service?.name}.png`}
+                                alt={b.service?.name}
+                                className="w-8 h-8 rounded-lg object-cover bg-slate-100 border shrink-0"
+                                onError={(e) => { e.target.src = "/default-service.png"; }}
+                              />
+                              <span className="font-bold text-navy">{b.service?.name}</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={b.issue?.imageUrl || b.service?.imageUrl || `/${b.service?.name}.png`}
+                                alt={b.issue?.title}
+                                className="w-8 h-8 rounded-lg object-cover bg-slate-100 border shrink-0"
+                                onError={(e) => { e.target.src = "/default-service.png"; }}
+                              />
+                              <div className="space-y-0.5">
+                                <span className="font-semibold text-slate-800 block truncate max-w-[160px]" title={b.issue?.title}>{b.issue?.title}</span>
+                                <span className="text-xs text-slate-450 truncate max-w-[180px] block" title={b.issue?.description}>{b.issue?.description}</span>
+                              </div>
                             </div>
                           </td>
                           <td className="py-4 px-6">
@@ -565,6 +600,99 @@ const ReportIssue = () => {
                   </div>
                 </div>
 
+                {/* Issue Image Selection & Upload */}
+                <div className="bg-slate-50 border border-custom-border rounded-2xl p-5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-navy flex items-center gap-2">
+                      <FaImage className="text-primary text-base" />
+                      Issue Breakdown Image (Publicly Visible)
+                    </h3>
+                    {formData.imageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, imageUrl: "" })}
+                        className="text-xs text-red-500 font-semibold hover:underline"
+                      >
+                        Clear Image
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Live Preview Box */}
+                  {formData.imageUrl ? (
+                    <div className="relative w-full h-36 rounded-xl overflow-hidden border border-custom-border bg-slate-200 flex items-center justify-center">
+                      <img
+                        src={formData.imageUrl}
+                        alt="Selected Issue Breakdown Graphic"
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.target.src = "/default-service.png"; }}
+                      />
+                      <div className="absolute bottom-2 left-2 bg-navy/80 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-sm">
+                        Issue Graphic Selected
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-full h-20 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center text-slate-400 text-xs gap-1">
+                      <FaImage className="text-base" />
+                      <span>No image selected (Will fallback to parent service graphic)</span>
+                    </div>
+                  )}
+
+                  {/* Image Input Options */}
+                  <div className="space-y-3 pt-1">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1">Paste Image URL:</label>
+                      <input
+                        type="text"
+                        name="imageUrl"
+                        value={formData.imageUrl}
+                        onChange={handleFormChange}
+                        placeholder="https://example.com/issue-image.jpg or /AC.gas.png"
+                        className="w-full px-3 py-2 bg-white border border-custom-border rounded-xl text-xs outline-none focus:border-secondary text-navy"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <label className="block text-xs font-semibold text-slate-600 mb-1">Upload Local Image File:</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileUpload}
+                          className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Presets */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-2">Or Select Available Preset Graphic ({issuePresets.length} images):</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 max-h-60 overflow-y-auto p-1 gap-2 border border-slate-200 rounded-xl bg-white">
+                        {issuePresets.map((preset, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, imageUrl: preset.url })}
+                            className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all text-xs ${
+                              formData.imageUrl === preset.url
+                                ? "border-primary bg-blue-50 text-primary font-bold shadow-sm"
+                                : "border-slate-200 bg-white hover:border-slate-300 text-slate-700"
+                            }`}
+                          >
+                            <img
+                              src={preset.url}
+                              alt={preset.label}
+                              className="w-6 h-6 rounded-lg object-cover shrink-0 bg-slate-100"
+                              onError={(e) => { e.target.src = "/default-service.png"; }}
+                            />
+                            <span className="truncate text-[11px] font-medium" title={preset.name}>{preset.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="bg-slate-50 border border-custom-border rounded-2xl p-5 space-y-2">
                   <h3 className="text-sm font-bold text-navy flex items-center gap-2">
                     <FaInfoCircle className="text-primary" />
@@ -614,6 +742,19 @@ const ReportIssue = () => {
             </div>
 
             <div className="p-6 space-y-6 text-sm text-slate-700">
+
+              <div className="flex gap-3 items-center p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+                <img
+                  src={selectedBooking.issue?.imageUrl || selectedBooking.service?.imageUrl || `/${selectedBooking.service?.name}.png`}
+                  alt="Issue Graphic"
+                  className="w-16 h-16 rounded-xl object-cover border shrink-0 bg-white"
+                  onError={(e) => { e.target.src = "/default-service.png"; }}
+                />
+                <div>
+                  <h5 className="font-extrabold text-navy text-sm">{selectedBooking.issue?.title || selectedBooking.service?.name}</h5>
+                  <p className="text-xs text-slate-500 line-clamp-2">{selectedBooking.issue?.description}</p>
+                </div>
+              </div>
 
               <div className="space-y-2">
                 <h4 className="font-extrabold text-navy text-base border-b pb-2 flex items-center gap-2">

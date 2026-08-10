@@ -116,7 +116,7 @@ public class BookingService {
             Long technicianId) {
 
         return bookingRepository
-                .findByTechnicianId(technicianId);
+                .findByTechnician_IdOrTechnician_User_Id(technicianId, technicianId);
     }
     public List<Booking> getPendingBookings() {
 

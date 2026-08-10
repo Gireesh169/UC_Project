@@ -34,29 +34,34 @@ const WorkerDashboard = () => {
         `/technicians/user/${user.id}`,
       );
       console.log("Technician:", techResponse.data);
-      setTechnician(techResponse.data);
-      if (techResponse.data?.id) {
-        fetchBookings(techResponse.data.id);
+      if (techResponse.data && techResponse.data.id) {
+        setTechnician(techResponse.data);
+        fetchBookings(techResponse.data.id, user.id);
       } else {
-        setLoading(false);
+        fetchBookings(user.id, user.id);
       }
     } catch (error) {
       console.log(error);
-      setLoading(false);
+      fetchBookings(user.id, user.id);
     }
   };
 
-  const fetchBookings = async (technicianId) => {
+  const fetchBookings = async (techId, userId) => {
     try {
-      const response = await axios.get(
-        `/booking/technician/${technicianId}`,
+      let response = await axios.get(
+        `/booking/technician/${techId}`,
       );
-      console.log("Bookings:", response.data);
-      if (Array.isArray(response.data)) {
-        setBookings(response.data);
-      } else {
-        setBookings([]);
+      console.log("Bookings by TechId:", response.data);
+      let list = Array.isArray(response.data) ? response.data : [];
+
+      if (list.length === 0 && userId && techId !== userId) {
+        const fallbackRes = await axios.get(`/booking/technician/${userId}`);
+        if (Array.isArray(fallbackRes.data) && fallbackRes.data.length > 0) {
+          list = fallbackRes.data;
+        }
       }
+
+      setBookings(list);
     } catch (error) {
       console.log(error);
       setBookings([]);

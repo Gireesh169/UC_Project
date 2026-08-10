@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.klu.model.Technician;
+import com.klu.model.User;
 import com.klu.repository.TechnicianRepository;
+import com.klu.repository.UserRepository;
 
 @Service
 public class TechnicianService {
@@ -14,8 +16,14 @@ public class TechnicianService {
     @Autowired
     private TechnicianRepository technicianRepository;
 
-    public Technician createTechnician(Technician technician) {
+    @Autowired
+    private UserRepository userRepository;
 
+    public Technician createTechnician(Technician technician) {
+        if (technician.getUser() != null && technician.getUser().getId() != null) {
+            User user = userRepository.findById(technician.getUser().getId()).orElse(null);
+            technician.setUser(user);
+        }
         return technicianRepository.save(technician);
     }
 
@@ -30,9 +38,25 @@ public class TechnicianService {
     }
 
     public Technician getByUserId(Long userId) {
+        Technician tech = technicianRepository.findByUserId(userId).orElse(null);
+        if (tech != null) {
+            return tech;
+        }
 
-        return technicianRepository.findByUserId(userId)
-                .orElse(null);
+        // Fallback: Check if User exists and match technician by name
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null && user.getName() != null) {
+            List<Technician> list = technicianRepository.findByNameIgnoreCase(user.getName());
+            if (!list.isEmpty()) {
+                Technician matched = list.get(0);
+                if (matched.getUser() == null) {
+                    matched.setUser(user);
+                    return technicianRepository.save(matched);
+                }
+                return matched;
+            }
+        }
+        return null;
     }
 
     public Technician updateTechnician(

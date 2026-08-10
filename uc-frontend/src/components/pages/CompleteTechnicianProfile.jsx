@@ -8,9 +8,10 @@ const CompleteTechnicianProfile = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
+  const [existingId, setExistingId] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
+    name: user?.name || "",
+    phone: user?.phone || "",
     skills: "",
     experience: "",
     available: true,
@@ -18,7 +19,9 @@ const CompleteTechnicianProfile = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    checkExistingProfile();
+    if (user?.id) {
+      checkExistingProfile();
+    }
   }, []);
 
   const checkExistingProfile = async () => {
@@ -27,8 +30,15 @@ const CompleteTechnicianProfile = () => {
         `/technicians/user/${user.id}`,
       );
 
-      if (response.data) {
-        navigate("/worker-dashboard");
+      if (response.data && response.data.id) {
+        setExistingId(response.data.id);
+        setFormData({
+          name: response.data.name || user?.name || "",
+          phone: response.data.phone || user?.phone || "",
+          skills: response.data.skills || "",
+          experience: response.data.experience || "",
+          available: response.data.available ?? true,
+        });
       }
     } catch (error) {
       console.log("No profile found");
@@ -58,9 +68,13 @@ const CompleteTechnicianProfile = () => {
         },
       };
 
-      await axios.post("/technicians", technicianData);
-
-      alert("Profile Completed Successfully");
+      if (existingId) {
+        await axios.put(`/technicians/update/${existingId}`, technicianData);
+        alert("Profile Updated Successfully");
+      } else {
+        await axios.post("/technicians", technicianData);
+        alert("Profile Completed Successfully");
+      }
 
       navigate("/worker-dashboard");
     } catch (error) {

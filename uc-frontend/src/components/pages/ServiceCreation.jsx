@@ -2,23 +2,38 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../api/axios";
 import { FaTools, FaFileAlt, FaImage, FaArrowLeft, FaPlusCircle } from "react-icons/fa";
+import { AVAILABLE_IMAGES } from "../../utils/availableImages";
 
 const ServiceCreation = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     basePrice: "",
+    imageUrl: "",
   });
 
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const presetImages = AVAILABLE_IMAGES;
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, imageUrl: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleServiceCreation = async (e) => {
@@ -36,6 +51,7 @@ const ServiceCreation = () => {
         name: "",
         description: "",
         basePrice: "",
+        imageUrl: "",
       });
     } catch (error) {
       console.log(error);
@@ -67,7 +83,7 @@ const ServiceCreation = () => {
             <h1 className="text-2xl font-extrabold tracking-tight">Create New Service</h1>
           </div>
           <p className="text-slate-400 text-sm pl-13">
-            Configure a new appliance service category for customer booking
+            Configure a new appliance service category with custom image for customer booking
           </p>
         </div>
 
@@ -105,9 +121,6 @@ const ServiceCreation = () => {
                   className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 transition-all duration-300 text-sm font-medium"
                 />
               </div>
-              <p className="text-xs text-slate-400 mt-1.5 pl-1">
-                Ensure name matches predefined categories to load assets automatically
-              </p>
             </div>
 
             <div>
@@ -152,23 +165,96 @@ const ServiceCreation = () => {
               </div>
             </div>
 
-            <div className="bg-slate-50 border border-custom-border rounded-2xl p-5 space-y-3">
-              <h3 className="text-sm font-bold text-navy flex items-center gap-2">
-                <FaImage className="text-primary text-base" />
-                Category Graphic Pre-matching
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                B1K Services includes built-in illustration assets. Creating a service matching one of the names below links details automatically:
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-semibold text-slate-600 pt-1">
-                <div>✔ Air Conditioner</div>
-                <div>✔ Refrigerator</div>
-                <div>✔ Washing Machine</div>
-                <div>✔ Television</div>
-                <div>✔ Fan</div>
-                <div>✔ Water Purifier</div>
-                <div>✔ Microwave</div>
-                <div>✔ Geyser</div>
+            {/* Service Image Selection & Upload */}
+            <div className="bg-slate-50 border border-custom-border rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-navy flex items-center gap-2">
+                  <FaImage className="text-primary text-base" />
+                  Service Image (Publicly Visible to Citizens & Admins)
+                </h3>
+                {formData.imageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, imageUrl: "" })}
+                    className="text-xs text-red-500 font-semibold hover:underline"
+                  >
+                    Clear Image
+                  </button>
+                )}
+              </div>
+
+              {/* Live Preview Box */}
+              {formData.imageUrl ? (
+                <div className="relative w-full h-44 rounded-xl overflow-hidden border border-custom-border bg-slate-200 flex items-center justify-center">
+                  <img
+                    src={formData.imageUrl}
+                    alt="Selected Service Graphic"
+                    className="w-full h-full object-cover"
+                    onError={(e) => { e.target.src = "/default-service.png"; }}
+                  />
+                  <div className="absolute bottom-2 left-2 bg-navy/80 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-sm">
+                    Image Selected Preview
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full h-24 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center text-slate-400 text-xs gap-1">
+                  <FaImage className="text-lg" />
+                  <span>No image selected (Will fallback to standard category asset)</span>
+                </div>
+              )}
+
+              {/* Image Input Options */}
+              <div className="space-y-3 pt-1">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">Paste Image URL:</label>
+                  <input
+                    type="text"
+                    name="imageUrl"
+                    value={formData.imageUrl}
+                    onChange={handleChange}
+                    placeholder="https://example.com/service-image.jpg or /AC.gas.png"
+                    className="w-full px-3 py-2 bg-white border border-custom-border rounded-xl text-xs outline-none focus:border-secondary text-navy"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <label className="block text-xs font-semibold text-slate-600 mb-1">Upload Local Image File:</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                {/* Preset Options */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-2">Or Choose from Available Presets ({presetImages.length} images):</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 max-h-60 overflow-y-auto p-1 gap-2 border border-slate-200 rounded-xl bg-white">
+                    {presetImages.map((preset, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, imageUrl: preset.url })}
+                        className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all text-xs ${
+                          formData.imageUrl === preset.url
+                            ? "border-primary bg-blue-50 text-primary font-bold shadow-sm"
+                            : "border-slate-200 bg-white hover:border-slate-300 text-slate-700"
+                        }`}
+                      >
+                        <img
+                          src={preset.url}
+                          alt={preset.label}
+                          className="w-7 h-7 rounded-lg object-cover shrink-0 bg-slate-100"
+                          onError={(e) => { e.target.src = "/default-service.png"; }}
+                        />
+                        <span className="truncate text-[11px] font-medium" title={preset.name}>{preset.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 

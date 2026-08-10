@@ -117,11 +117,10 @@ const BookingDetails = () => {
             <div className="bg-white rounded-3xl overflow-hidden border border-custom-border shadow-sm">
               <div className="relative h-64 sm:h-80 bg-slate-100">
                 <img
-                  src={`/${service.name}.png`}
+                  src={service.imageUrl || `/${service.name}.png`}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.target.src =
-                      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=60";
+                    e.target.src = "/default-service.png";
                   }}
                   alt={service.name}
                 />
@@ -174,7 +173,7 @@ const BookingDetails = () => {
                       <div
                         key={issue.id}
                         onClick={() => setSelectedIssue(issue)}
-                        className={`cursor-pointer rounded-3xl p-6 border shadow-sm transition-all duration-300 hover:shadow-md flex flex-col justify-between h-48 bg-white relative ${
+                        className={`cursor-pointer rounded-3xl p-6 border shadow-sm transition-all duration-300 hover:shadow-md flex flex-col justify-between min-h-52 bg-white relative ${
                           isSelected
                             ? "border-primary bg-blue-50/15 shadow-primary/5 shadow-md"
                             : "border-custom-border hover:border-blue-200"
@@ -185,17 +184,24 @@ const BookingDetails = () => {
                             <FaCheck className="text-xs" />
                           </div>
                         )}
-                        <div className="space-y-2">
-                          <h3 className="text-lg font-extrabold text-navy flex items-center gap-2 pr-6">
-                            <FaWrench className="text-primary shrink-0 text-sm" />
-                            {issue.title}
-                          </h3>
-                          <p className="text-slate-500 text-xs md:text-sm line-clamp-2 leading-relaxed">
-                            {issue.description}
-                          </p>
+                        <div className="flex gap-4 items-start">
+                          <img
+                            src={issue.imageUrl || service.imageUrl || `/${service.name}.png`}
+                            alt={issue.title}
+                            className="w-16 h-16 rounded-2xl object-cover border shrink-0 bg-slate-50 shadow-xs"
+                            onError={(e) => { e.target.src = "/default-service.png"; }}
+                          />
+                          <div className="space-y-1 pr-4 flex-1">
+                            <h3 className="text-base font-extrabold text-navy leading-snug">
+                              {issue.title}
+                            </h3>
+                            <p className="text-slate-500 text-xs line-clamp-2 leading-relaxed">
+                              {issue.description}
+                            </p>
+                          </div>
                         </div>
 
-                        <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-auto">
+                        <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-4">
                           <span className="text-xs font-semibold text-slate-400 block uppercase">
                             Estimate
                           </span>
