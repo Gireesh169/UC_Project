@@ -31,9 +31,36 @@ public class User implements UserDetails {
     private String address;
     private String role; // citizen / admin / worker (mapped to USER, ADMIN, TECHNICIAN)
     
+    private boolean enabled = true;
+    private String verificationCode;
+    private java.time.LocalDateTime verificationExpiry;
+    
+    private String resetOtp;
+    private java.time.LocalDateTime resetOtpExpiry;
+    
+    private int failedAttempts = 0;
+    private boolean locked = false;
+    private java.time.LocalDateTime lockTime;
+    
+    private java.time.LocalDateTime createdAt;
+    private java.time.LocalDateTime updatedAt;
+    private java.time.LocalDateTime lastLogin;
+    private boolean deleted = false;
+    
     @OneToOne(mappedBy = "user")
     @JsonIgnore
     private Technician technician;
+
+    @jakarta.persistence.PrePersist
+    public void onCreate() {
+        this.createdAt = java.time.LocalDateTime.now();
+        this.updatedAt = java.time.LocalDateTime.now();
+    }
+
+    @jakarta.persistence.PreUpdate
+    public void onUpdate() {
+        this.updatedAt = java.time.LocalDateTime.now();
+    }
 
     @Override
     @JsonIgnore
@@ -62,7 +89,7 @@ public class User implements UserDetails {
     @Override
     @JsonIgnore
     public boolean isAccountNonLocked() {
-        return true;
+        return !locked;
     }
 
     @Override
@@ -74,6 +101,6 @@ public class User implements UserDetails {
     @Override
     @JsonIgnore
     public boolean isEnabled() {
-        return true;
+        return enabled && !deleted;
     }
 }

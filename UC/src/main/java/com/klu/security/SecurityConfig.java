@@ -47,10 +47,14 @@ public class SecurityConfig {
                 // Public endpoints
                 .requestMatchers("/auth/**").permitAll()
                 
-                // USER role bookings, update profile, submit reviews
+                // Admin specific endpoints
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                
+                // USER role bookings, update profile, submit reviews, support tickets
                 .requestMatchers(HttpMethod.POST, "/booking/create").hasRole("USER")
                 .requestMatchers(HttpMethod.GET, "/booking/user/**").hasRole("USER")
-                .requestMatchers(HttpMethod.PUT, "/users/edit/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/booking/*/invoice").hasAnyRole("USER", "TECHNICIAN", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/users/edit/**").hasAnyRole("USER", "TECHNICIAN", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/reviews").hasRole("USER")
                 
                 // TECHNICIAN role bookings & profile
@@ -71,6 +75,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/booking/*/assign/*").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/booking/*").hasRole("ADMIN")
                 
+                // Support Tickets & Notifications
+                .requestMatchers("/tickets/**").authenticated()
+                .requestMatchers("/notifications/**").authenticated()
+
                 // Shared authenticated endpoints
                 .requestMatchers(HttpMethod.GET, "/services/all", "/services/*").hasAnyRole("USER", "TECHNICIAN", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/issues/service/*").hasAnyRole("USER", "TECHNICIAN", "ADMIN")

@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,42 +20,38 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.klu.model.Booking;
 import com.klu.service.BookingService;
+import com.klu.service.PdfInvoiceService;
 
 @RestController
 @RequestMapping("/booking")
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173")
 public class BookingController {
 
     @Autowired
     private BookingService bookingService;
 
+    @Autowired
+    private PdfInvoiceService pdfInvoiceService;
 
     @PostMapping("/create")
-   
     public Booking createBooking(@RequestBody Map<String, Object> request) {
-
         Long userId = Long.valueOf(request.get("userId").toString());
         Long serviceId = Long.valueOf(request.get("serviceId").toString());
         Long issueId = Long.valueOf(request.get("issueId").toString());
         String address = request.get("address").toString();
 
-        return bookingService.createBooking(
-                userId,
-                serviceId,
-                issueId,
-                address
-        );
+        return bookingService.createBooking(userId, serviceId, issueId, address);
     }
+
     @GetMapping("/user/{userId}")
     public List<Booking> getUserBookings(@PathVariable Long userId) {
         return bookingService.getUserBookings(userId);
     }
-    
+
     @PutMapping("/{bookingId}/status")
     public Booking updateStatus(
             @PathVariable Long bookingId,
             @RequestParam String status) {
-
         return bookingService.updateStatus(bookingId, status);
     }
 
@@ -61,33 +60,46 @@ public class BookingController {
         bookingService.deleteBooking(bookingId);
         return "Booking deleted successfully";
     }
+
     @PutMapping("/{bookingId}/assign/{technicianId}")
     public Booking assignTechnician(
             @PathVariable Long bookingId,
             @PathVariable Long technicianId) {
-
-        return bookingService.assignTechnician(
-                bookingId,
-                technicianId);
+        return bookingService.assignTechnician(bookingId, technicianId);
     }
+
     @GetMapping("/all")
     public List<Booking> getAllBookings() {
-
         return bookingService.getAllBookings();
     }
-    @GetMapping("/technician/{technicianId}")
-    public List<Booking> getByTechnician(
-            @PathVariable Long technicianId) {
 
+    @GetMapping("/technician/{technicianId}")
+    public List<Booking> getByTechnician(@PathVariable Long technicianId) {
         return bookingService.getBookingsByTechnician(technicianId);
     }
+
     @GetMapping("/pending")
     public List<Booking> getPendingBookings() {
         return bookingService.getPendingBookings();
     }
+
     @GetMapping("/history")
     public List<Booking> getBookingHistory() {
         return bookingService.getBookingHistory();
     }
-  
+
+    // PART 10: PDF Invoice Download Endpoint
+    @GetMapping("/{bookingId}/invoice")
+    public ResponseEntity<byte[]> downloadInvoice(@PathVariable Long bookingId) {
+        byte[] pdfBytes = pdfInvoiceService.generateInvoicePdf(bookingId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "Invoice-Booking-" + bookingId + ".pdf");
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
+    }
 }

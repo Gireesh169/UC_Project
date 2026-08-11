@@ -15,4 +15,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByTechnician_IdOrTechnician_User_Id(Long technicianId, Long userId);
 	List<Booking> findByStatus(String string);
 	List<Booking> findByStatusNot(String status);
+	
+	long countByStatus(String status);
+	
+	@org.springframework.data.jpa.repository.Query("SELECT COUNT(b) FROM Booking b WHERE b.bookingDate >= :startDate")
+	long countBookingsAfter(@org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate);
+
+	@org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(b.totalPrice), 0.0) FROM Booking b WHERE b.status = 'COMPLETED' OR b.status = 'REVIEWED'")
+	double calculateTotalRevenue();
+
+	@org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(b.totalPrice), 0.0) FROM Booking b WHERE (b.status = 'COMPLETED' OR b.status = 'REVIEWED') AND b.bookingDate >= :startDate")
+	double calculateRevenueAfter(@org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate);
 }

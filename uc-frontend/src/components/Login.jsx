@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "../api/axios";
 import logo from "../assets/vite.svg";
-import { FaEnvelope, FaLock, FaSignInAlt, FaArrowLeft } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaSignInAlt, FaArrowLeft, FaKey } from "react-icons/fa";
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -13,6 +13,16 @@ const Login = () => {
   const [error, setError] = useState("");
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Forgot password modal state
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotStep, setForgotStep] = useState(1); // 1: Email, 2: OTP & New Password
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [resetOtp, setResetOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMsg, setForgotMsg] = useState("");
+  const [forgotErr, setForgotErr] = useState("");
 
   const navigate = useNavigate();
 
@@ -32,11 +42,12 @@ const Login = () => {
     try {
       const res = await axios.post("/auth/login", form);
 
-      console.log(res.data);
-
       if (res.status === 200 || res.status === 201) {
         setResponse("Login Successful! Redirecting...");
         localStorage.setItem("token", res.data.token);
+        if (res.data.refreshToken) {
+          localStorage.setItem("refreshToken", res.data.refreshToken);
+        }
         localStorage.setItem("user", JSON.stringify(res.data.user));
 
         setTimeout(() => {
@@ -51,7 +62,7 @@ const Login = () => {
         }, 1000);
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else {
@@ -62,9 +73,50 @@ const Login = () => {
     }
   };
 
+  const handleInitiateForgot = async (e) => {
+    e.preventDefault();
+    setForgotErr("");
+    setForgotMsg("");
+    setForgotLoading(true);
+
+    try {
+      await axios.post("/auth/forgot-password", { email: forgotEmail });
+      setForgotMsg("Password reset OTP code sent to your email!");
+      setForgotStep(2);
+    } catch (err) {
+      setForgotErr(err.response?.data?.message || "Failed to send reset code. Verify email.");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleCompleteReset = async (e) => {
+    e.preventDefault();
+    setForgotErr("");
+    setForgotMsg("");
+    setForgotLoading(true);
+
+    try {
+      await axios.post("/auth/reset-password", {
+        email: forgotEmail,
+        otp: resetOtp,
+        newPassword: newPassword,
+      });
+      setForgotMsg("Password successfully reset! You can now log in.");
+      setTimeout(() => {
+        setShowForgotModal(false);
+        setForgotStep(1);
+        setForm({ ...form, email: forgotEmail, password: "" });
+      }, 1500);
+    } catch (err) {
+      setForgotErr(err.response?.data?.message || "Invalid OTP or password reset failed.");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-navy via-slate-800 to-primary flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
-
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary/20 blur-3xl -z-10"></div>
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 rounded-full bg-secondary/15 blur-3xl -z-10"></div>
 
@@ -77,7 +129,6 @@ const Login = () => {
       </Link>
 
       <div className="w-full max-w-md bg-transparent">
-
         <div className="flex justify-center items-center mb-8">
           <Link to="/">
             <img src={logo} alt="B1K Services Logo" className="h-24 w-auto mx-auto object-contain transition-all duration-300 hover:scale-105" />
@@ -125,9 +176,21 @@ const Login = () => {
             </div>
 
             <div>
-              <label className="block text-slate-300 text-sm font-semibold mb-2" htmlFor="password">
-                Password
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-slate-300 text-sm font-semibold" htmlFor="password">
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForgotEmail(form.email);
+                    setShowForgotModal(true);
+                  }}
+                  className="text-xs text-light-blue hover:underline cursor-pointer"
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-500">
                   <FaLock />
@@ -169,6 +232,86 @@ const Login = () => {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl relative">
+            <h3 className="text-xl font-bold text-white mb-2">Reset Password</h3>
+            <p className="text-slate-400 text-xs mb-4">
+              {forgotStep === 1 ? "Enter your registered email to receive an OTP." : "Enter the OTP code and your new password."}
+            </p>
+
+            {forgotMsg && <div className="mb-4 p-3 bg-blue-950/60 border border-blue-500/30 rounded-xl text-light-blue text-xs text-center">{forgotMsg}</div>}
+            {forgotErr && <div className="mb-4 p-3 bg-red-950/60 border border-red-500/30 rounded-xl text-red-400 text-xs text-center">{forgotErr}</div>}
+
+            {forgotStep === 1 ? (
+              <form onSubmit={handleInitiateForgot} className="space-y-4">
+                <input
+                  type="email"
+                  placeholder="name@example.com"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-secondary"
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(false)}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="px-4 py-2 bg-primary hover:bg-primary-hover text-white font-bold rounded-xl text-xs"
+                  >
+                    {forgotLoading ? "Sending..." : "Send OTP"}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleCompleteReset} className="space-y-4">
+                <input
+                  type="text"
+                  maxLength={6}
+                  placeholder="Enter 6-Digit OTP"
+                  value={resetOtp}
+                  onChange={(e) => setResetOtp(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-center font-mono text-lg tracking-widest outline-none focus:border-secondary"
+                />
+                <input
+                  type="password"
+                  placeholder="Enter New Password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-secondary"
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(false)}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs"
+                  >
+                    {forgotLoading ? "Resetting..." : "Reset Password"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

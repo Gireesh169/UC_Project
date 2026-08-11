@@ -22,10 +22,30 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status; // PENDING, ASSIGNED, COMPLETED
+    private String status; // PENDING, TECHNICIAN_ASSIGNED, TECHNICIAN_ACCEPTED, IN_PROGRESS, COMPLETED, REVIEWED
     private String address;
     private double totalPrice;
     private LocalDateTime bookingDate;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime assignedAt;
+    private LocalDateTime acceptedAt;
+    private LocalDateTime completedAt;
+
+    @jakarta.persistence.PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        if (this.bookingDate == null) {
+            this.bookingDate = LocalDateTime.now();
+        }
+    }
+
+    @jakarta.persistence.PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     @ManyToOne
     @JoinColumn(name = "user_id")
