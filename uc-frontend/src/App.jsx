@@ -15,6 +15,10 @@ import CompleteTechnicianProfile from "./components/pages/CompleteTechnicianProf
 import ViewPastBooking from "./components/pages/ViewPastBooking";
 import UpdateProfile from "./components/pages/UpdateProfile";
 import BookingDetails from "./components/pages/BookingDetails";
+import AdminBookingManagement from "./components/pages/AdminBookingManagement";
+import BookingDetailsPage from "./components/pages/BookingDetailsPage";
+import CustomerManagementPage from "./components/pages/CustomerManagementPage";
+import TechnicianManagementPage from "./components/pages/TechnicianManagementPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -52,7 +56,7 @@ function App() {
           }
         />
         <Route
-          path="/booking/:id"
+          path="/service-booking/:id"
           element={
             <ProtectedRoute allowedRoles={["citizen"]}>
               <BookingDetails />
@@ -89,6 +93,38 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <TechnicianAssignment />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/bookings"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminBookingManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/customers"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <CustomerManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/technicians"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <TechnicianManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/booking/:id"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "citizen", "worker"]}>
+              <BookingDetailsPage />
             </ProtectedRoute>
           }
         />

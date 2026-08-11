@@ -25,6 +25,10 @@ public class Booking {
     private String status; // PENDING, TECHNICIAN_ASSIGNED, TECHNICIAN_ACCEPTED, IN_PROGRESS, COMPLETED, REVIEWED
     private String address;
     private double totalPrice;
+    private double basePrice;
+    private double issuePrice;
+    private double gst;
+    private double finalPrice;
     private LocalDateTime bookingDate;
 
     private LocalDateTime createdAt;

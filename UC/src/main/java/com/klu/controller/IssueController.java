@@ -16,9 +16,18 @@ import com.klu.model.Issue;
 import com.klu.model.ServiceEntity;
 import com.klu.repository.ServiceRepository;
 import com.klu.service.IssueService;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
+
+import com.klu.dto.IssueRequestDTO;
+
 @RestController
 @RequestMapping("/issues")
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:5173")
 public class IssueController {
 
     @Autowired
@@ -28,40 +37,47 @@ public class IssueController {
     private ServiceRepository serviceRepository;
 
     @PostMapping("/create")
-    public Issue createIssue(@RequestBody Map<String,Object> request){
+    public ResponseEntity<Issue> createIssue(@Valid @RequestBody IssueRequestDTO dto) {
+        return ResponseEntity.ok(issueService.createIssueFromDTO(dto));
+    }
 
-        Issue issue=new Issue();
+    @GetMapping("/all")
+    public ResponseEntity<List<Issue>> getAllIssues() {
+        return ResponseEntity.ok(issueService.getAllIssues());
+    }
 
-        issue.setTitle(request.get("title").toString());
-
-        issue.setDescription(request.get("description").toString());
-
-        issue.setPrice(
-                Double.parseDouble(request.get("price").toString())
-        );
-
-        if (request.containsKey("imageUrl") && request.get("imageUrl") != null) {
-            issue.setImageUrl(request.get("imageUrl").toString());
-        }
-
-        Long serviceId=
-                Long.parseLong(request.get("serviceId").toString());
-
-        ServiceEntity service=
-                serviceRepository.findById(serviceId).get();
-
-        issue.setService(service);
-
-        return issueService.createIssue(issue);
-
+    @GetMapping("/{id}")
+    public ResponseEntity<Issue> getIssueById(@PathVariable Long id) {
+        return ResponseEntity.ok(issueService.getIssueById(id));
     }
 
     @GetMapping("/service/{serviceId}")
-    public List<Issue> getIssuesByService(
-            @PathVariable Long serviceId){
-
-        return issueService.getIssuesByService(serviceId);
-
+    public ResponseEntity<List<Issue>> getIssuesByService(
+            @PathVariable Long serviceId,
+            @RequestParam(required = false, defaultValue = "false") boolean includeInactive) {
+        if (includeInactive) {
+            return ResponseEntity.ok(issueService.getIssuesByService(serviceId));
+        } else {
+            return ResponseEntity.ok(issueService.getActiveIssuesByService(serviceId));
+        }
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Issue> updateIssue(
+            @PathVariable Long id,
+            @Valid @RequestBody IssueRequestDTO dto) {
+        return ResponseEntity.ok(issueService.updateIssue(id, dto));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Issue> deleteIssue(@PathVariable Long id) {
+        return ResponseEntity.ok(issueService.softDeleteIssue(id));
+    }
+
+    @PatchMapping("/status/{id}")
+    public ResponseEntity<Issue> updateStatus(
+            @PathVariable Long id,
+            @RequestParam(required = false) Boolean active) {
+        return ResponseEntity.ok(issueService.toggleIssueStatus(id, active));
+    }
 }

@@ -15,6 +15,8 @@ import {
   FaLifeRing,
   FaHistory,
   FaRupeeSign,
+  FaTimesCircle,
+  FaUsers
 } from "react-icons/fa";
 
 const AdminDashboard = () => {
@@ -24,10 +26,13 @@ const AdminDashboard = () => {
     totalTechnicians: 0,
     totalBookings: 0,
     pendingBookings: 0,
+    assignedBookings: 0,
     completedJobs: 0,
+    cancelledBookings: 0,
     bookingsToday: 0,
     totalRevenue: 0,
     monthlyRevenue: 0,
+    avgBookingPrice: 0,
   });
 
   const [activeTab, setActiveTab] = useState("overview"); // overview, addTech, tickets, auditLogs
@@ -48,7 +53,7 @@ const AdminDashboard = () => {
 
   // Support Tickets State
   const [tickets, setTickets] = useState([]);
-  
+
   // Audit Logs State
   const [auditLogs, setAuditLogs] = useState([]);
 
@@ -128,15 +133,15 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-custom-bg text-custom-text pb-20 font-sans">
-      <header className="sticky top-0 z-50 bg-navy text-white border-b border-slate-800">
+    <div className="relative min-h-screen bg-slate-50 text-slate-800 pb-20 font-sans">
+      <header className="sticky top-0 z-50 bg-navy text-white border-b border-slate-800 shadow-md">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center">
               <img src={logo} alt="B1K Services Logo" className="h-14 w-auto object-contain transition-all duration-300 hover:scale-105" />
             </Link>
             <div className="border-l border-slate-700 pl-3 hidden sm:block">
-              <span className="text-sm font-bold tracking-wider text-light-blue uppercase">Admin Control Panel</span>
+              <span className="text-sm font-bold tracking-wider text-light-blue uppercase">Admin System Dashboard</span>
             </div>
           </div>
 
@@ -195,25 +200,28 @@ const AdminDashboard = () => {
                 Welcome Back, <span className="text-primary">Admin 👋</span>
               </h1>
               <p className="text-slate-500 text-sm max-w-xl">
-                Monitor system metrics, manage technician assignments, and review real-time platform revenue.
+                Monitor real-time booking statistics, manage service & issue catalogs, and track technician revenue.
               </p>
             </div>
 
-            {/* PART 11: Analytics Cards */}
+            {/* PART 10: Dashboard Analytics Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               {[
                 { label: "Total Users", val: stats.totalUsers, icon: FaUserTie, color: "text-blue-600 bg-blue-50 border-blue-100" },
                 { label: "Total Technicians", val: stats.totalTechnicians, icon: FaUserCheck, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
                 { label: "Total Bookings", val: stats.totalBookings, icon: FaClipboardList, color: "text-emerald-600 bg-emerald-50 border-emerald-100" },
                 { label: "Pending Requests", val: stats.pendingBookings, icon: FaExclamationTriangle, color: "text-amber-600 bg-amber-50 border-amber-100" },
+                { label: "Assigned Jobs", val: stats.assignedBookings || 0, icon: FaUserCheck, color: "text-indigo-600 bg-indigo-50 border-indigo-100" },
                 { label: "Completed Jobs", val: stats.completedJobs, icon: FaTools, color: "text-green-600 bg-green-50 border-green-100" },
+                { label: "Cancelled Jobs", val: stats.cancelledBookings || 0, icon: FaTimesCircle, color: "text-rose-600 bg-rose-50 border-rose-100" },
                 { label: "Bookings Today", val: stats.bookingsToday, icon: FaClipboardList, color: "text-purple-600 bg-purple-50 border-purple-100" },
                 { label: "Total Revenue", val: `₹${stats.totalRevenue}`, icon: FaRupeeSign, color: "text-emerald-700 bg-emerald-50 border-emerald-200" },
                 { label: "Monthly Revenue", val: `₹${stats.monthlyRevenue}`, icon: FaRupeeSign, color: "text-teal-700 bg-teal-50 border-teal-200" },
+                { label: "Average Booking", val: `₹${stats.avgBookingPrice || 0}`, icon: FaRupeeSign, color: "text-blue-700 bg-blue-50 border-blue-200" },
               ].map((stat, i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-2xl border border-custom-border shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow duration-200"
+                  className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow duration-200"
                 >
                   <div className="space-y-1">
                     <span className="text-slate-400 text-xs md:text-sm font-semibold block">{stat.label}</span>
@@ -226,55 +234,94 @@ const AdminDashboard = () => {
               ))}
             </div>
 
-            {/* Quick Modules */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-white rounded-3xl border border-custom-border shadow-sm hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6">
+            {/* Admin Feature Modules Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* Service Management */}
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6">
                 <div className="space-y-4">
                   <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 text-primary flex items-center justify-center text-xl shadow-sm">
                     <FaPlusCircle />
                   </div>
                   <h3 className="text-xl font-bold text-navy">Manage Services</h3>
                   <p className="text-slate-500 text-sm leading-relaxed">
-                    Configure new appliance categories, set custom descriptions, and upload base price estimates.
+                    Configure service categories, base prices, descriptions, image graphics, and active statuses.
                   </p>
                 </div>
                 <Link to="/service-creation" className="mt-8">
                   <button className="w-full bg-navy hover:bg-primary text-white font-bold py-3 rounded-xl transition duration-300 flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md">
-                    Open Module <FaArrowRight className="text-xs" />
+                    Open Service Module <FaArrowRight className="text-xs" />
                   </button>
                 </Link>
               </div>
 
-              <div className="bg-white rounded-3xl border border-custom-border shadow-sm hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6">
+              {/* Issue Management */}
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6">
                 <div className="space-y-4">
                   <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center text-xl shadow-sm">
                     <FaExclamationTriangle />
                   </div>
                   <h3 className="text-xl font-bold text-navy">Manage Issues</h3>
                   <p className="text-slate-500 text-sm leading-relaxed">
-                    Map potential appliance breakdowns to service categories and estimate custom technician quotes.
+                    Map breakdown issues to parent services, edit prices, toggle statuses, and set estimate quotes.
                   </p>
                 </div>
                 <Link to="/report-issue" className="mt-8">
                   <button className="w-full bg-navy hover:bg-primary text-white font-bold py-3 rounded-xl transition duration-300 flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md">
-                    Open Module <FaArrowRight className="text-xs" />
+                    Open Issue Module <FaArrowRight className="text-xs" />
                   </button>
                 </Link>
               </div>
 
-              <div className="bg-white rounded-3xl border border-custom-border shadow-sm hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6">
+              {/* Booking Cards Management */}
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6">
                 <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-650 flex items-center justify-center text-xl shadow-sm">
-                    <FaUserCheck />
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-xl shadow-sm">
+                    <FaClipboardList />
                   </div>
-                  <h3 className="text-xl font-bold text-navy">Assign Technicians</h3>
+                  <h3 className="text-xl font-bold text-navy">Detailed Booking Cards</h3>
                   <p className="text-slate-500 text-sm leading-relaxed">
-                    Match pending repair requests with local skilled workers and monitor active workspace tasks.
+                    View detailed booking cards, filter by search/date/price, sort by price/date, and assign technicians.
                   </p>
                 </div>
-                <Link to="/technician-management" className="mt-8">
+                <Link to="/admin/bookings" className="mt-8">
                   <button className="w-full bg-navy hover:bg-primary text-white font-bold py-3 rounded-xl transition duration-300 flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md">
-                    Open Module <FaArrowRight className="text-xs" />
+                    Open Booking Cards <FaArrowRight className="text-xs" />
+                  </button>
+                </Link>
+              </div>
+
+              {/* Customer Directory */}
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6">
+                <div className="space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-xl shadow-sm">
+                    <FaUsers />
+                  </div>
+                  <h3 className="text-xl font-bold text-navy">Customer Directory</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">
+                    Inspect complete customer profiles, total/completed/pending bookings, and registration dates.
+                  </p>
+                </div>
+                <Link to="/admin/customers" className="mt-8">
+                  <button className="w-full bg-navy hover:bg-primary text-white font-bold py-3 rounded-xl transition duration-300 flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md">
+                    View Customers <FaArrowRight className="text-xs" />
+                  </button>
+                </Link>
+              </div>
+
+              {/* Technician Fleet */}
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between p-6">
+                <div className="space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-100 text-teal-600 flex items-center justify-center text-xl shadow-sm">
+                    <FaUserCheck />
+                  </div>
+                  <h3 className="text-xl font-bold text-navy">Technician Fleet</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">
+                    View technician profiles, photos, skills, experience, ratings, availability, and assigned/completed jobs.
+                  </p>
+                </div>
+                <Link to="/admin/technicians" className="mt-8">
+                  <button className="w-full bg-navy hover:bg-primary text-white font-bold py-3 rounded-xl transition duration-300 flex items-center justify-center gap-2 text-sm cursor-pointer shadow-md">
+                    View Technicians <FaArrowRight className="text-xs" />
                   </button>
                 </Link>
               </div>
@@ -282,7 +329,7 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* PART 3: ADD TECHNICIAN TAB */}
+        {/* ADD TECHNICIAN TAB */}
         {activeTab === "addTech" && (
           <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm max-w-2xl mx-auto">
             <h2 className="text-2xl font-bold text-navy mb-2">Create Technician Account</h2>
@@ -374,7 +421,7 @@ const AdminDashboard = () => {
               <button
                 type="submit"
                 disabled={techLoading}
-                className="w-full mt-4 bg-primary hover:bg-primary-hover text-white font-bold py-3 rounded-xl transition duration-300 shadow-md flex justify-center items-center gap-2 text-sm"
+                className="w-full mt-4 bg-primary hover:bg-primary-hover text-white font-bold py-3 rounded-xl transition duration-300 shadow-md flex justify-center items-center gap-2 text-sm cursor-pointer"
               >
                 {techLoading ? "Provisioning..." : "Create Technician Account"}
               </button>
@@ -382,7 +429,7 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* PART 14: SUPPORT TICKETS TAB */}
+        {/* SUPPORT TICKETS TAB */}
         {activeTab === "tickets" && (
           <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm space-y-6">
             <h2 className="text-2xl font-bold text-navy">Manage Customer Support Tickets</h2>
@@ -420,7 +467,7 @@ const AdminDashboard = () => {
                           {t.status !== "RESOLVED" && (
                             <button
                               onClick={() => handleResolveTicket(t.id, "RESOLVED")}
-                              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs"
+                              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs cursor-pointer"
                             >
                               Mark Resolved
                             </button>
@@ -435,7 +482,7 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* PART 16: AUDIT LOGS TAB */}
+        {/* AUDIT LOGS TAB */}
         {activeTab === "auditLogs" && (
           <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm space-y-6">
             <h2 className="text-2xl font-bold text-navy">System Security Audit Log</h2>

@@ -11,6 +11,5 @@ import com.klu.model.Review;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
 	List<Review> findByTechnician_Id(Long technicianId);
-
- 
+	long countByUser_Id(Long userId);
 }

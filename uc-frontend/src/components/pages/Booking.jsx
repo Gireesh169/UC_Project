@@ -20,7 +20,7 @@ const Booking = () => {
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get("/services/all");
+      const response = await axios.get("/services/active");
       setServices(response.data);
       setLoading(false);
     } catch (error) {
@@ -30,7 +30,7 @@ const Booking = () => {
   };
 
   const openService = (service) => {
-    navigate(`/booking/${service.id}`);
+    navigate(`/service-booking/${service.id}`);
   };
 
   const filteredServices = services.filter((svc) =>

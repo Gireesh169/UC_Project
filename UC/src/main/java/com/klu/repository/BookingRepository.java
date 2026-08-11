@@ -26,4 +26,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
 	@org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(b.totalPrice), 0.0) FROM Booking b WHERE (b.status = 'COMPLETED' OR b.status = 'REVIEWED') AND b.bookingDate >= :startDate")
 	double calculateRevenueAfter(@org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate);
+
+	boolean existsByService_Id(Long serviceId);
+	boolean existsByIssue_Id(Long issueId);
+
+	long countByUser_Id(Long userId);
+	long countByUser_IdAndStatus(Long userId, String status);
+
+	long countByTechnician_Id(Long technicianId);
+	long countByTechnician_IdAndStatus(Long technicianId, String status);
 }

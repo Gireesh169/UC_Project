@@ -28,7 +28,20 @@ public class Issue {
     @ManyToOne
     @JoinColumn(name = "service_id")
     private ServiceEntity service;
-    
 
+    private boolean active = true;
 
+    private java.time.LocalDateTime createdAt;
+    private java.time.LocalDateTime updatedAt;
+
+    @jakarta.persistence.PrePersist
+    public void onCreate() {
+        this.createdAt = java.time.LocalDateTime.now();
+        this.updatedAt = java.time.LocalDateTime.now();
+    }
+
+    @jakarta.persistence.PreUpdate
+    public void onUpdate() {
+        this.updatedAt = java.time.LocalDateTime.now();
+    }
 }

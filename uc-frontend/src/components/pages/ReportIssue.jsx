@@ -1,46 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../../api/axios";
-import logo from "../../assets/vite.svg";
 import {
   FaExclamationTriangle,
   FaTools,
   FaFileAlt,
-  FaInfoCircle,
   FaArrowLeft,
   FaPlusCircle,
-  FaTrash,
-  FaEye,
-  FaFilter,
+  FaEdit,
+  FaTrashAlt,
   FaSearch,
-  FaUserCheck,
-  FaCalendarAlt,
-  FaMapMarkerAlt,
-  FaUser,
-  FaClock,
-  FaImage,
+  FaCheckCircle,
+  FaToggleOn,
+  FaToggleOff,
+  FaRupeeSign,
+  FaExclamationCircle,
+  FaFilter
 } from "react-icons/fa";
 import { AVAILABLE_IMAGES } from "../../utils/availableImages";
+import ConfirmationModal from "../common/ConfirmationModal";
 
 const ReportIssue = () => {
-
-  const [activeTab, setActiveTab] = useState("reports");
-
+  const [issues, setIssues] = useState([]);
   const [services, setServices] = useState([]);
-
-  const [bookings, setBookings] = useState([]);
-  const [technicians, setTechnicians] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+  const [selectedServiceFilter, setSelectedServiceFilter] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [serviceFilter, setServiceFilter] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
-
-  const [selectedBooking, setSelectedBooking] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingIssue, setEditingIssue] = useState(null);
+  const [formLoading, setFormLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
   const [formData, setFormData] = useState({
     title: "",
@@ -48,12 +40,18 @@ const ReportIssue = () => {
     price: "",
     serviceId: "",
     imageUrl: "",
+    active: true,
+  });
+
+  // Confirmation Modal State
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    issueId: null,
+    issueTitle: "",
+    loading: false,
   });
 
   const issuePresets = AVAILABLE_IMAGES;
-  const [formMessage, setFormMessage] = useState("");
-  const [formSuccess, setFormSuccess] = useState(false);
-  const [formLoading, setFormLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -62,65 +60,54 @@ const ReportIssue = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const servicesRes = await axios.get("/services/all");
-      const bookingsRes = await axios.get("/booking/all");
-      const techRes = await axios.get("/technicians/all");
-
-      setServices(Array.isArray(servicesRes.data) ? servicesRes.data : []);
-      setBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : []);
-      setTechnicians(Array.isArray(techRes.data) ? techRes.data : []);
-    } catch (error) {
-      console.log("Error loading dashboard data", error);
+      const [issuesRes, servicesRes] = await Promise.all([
+        axios.get("/issues/all"),
+        axios.get("/services/all"),
+      ]);
+      setIssues(issuesRes.data || []);
+      setServices(servicesRes.data || []);
+    } catch (err) {
+      console.error("Failed to load issue management data", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStatusUpdate = async (bookingId, newStatus) => {
-    try {
-      await axios.put(`/booking/${bookingId}/status?status=${newStatus}`);
-      alert("Status updated successfully");
-      const updatedBookings = await axios.get("/booking/all");
-      setBookings(Array.isArray(updatedBookings.data) ? updatedBookings.data : []);
-    } catch (error) {
-      console.log(error);
-      alert("Failed to update status");
-    }
+  const handleOpenAddModal = () => {
+    setEditingIssue(null);
+    setFormData({
+      title: "",
+      description: "",
+      price: "",
+      serviceId: services.length > 0 ? services[0].id : "",
+      imageUrl: "",
+      active: true,
+    });
+    setErrorMsg("");
+    setSuccessMsg("");
+    setIsModalOpen(true);
   };
 
-  const handleTechnicianAssign = async (bookingId, technicianId) => {
-    if (!technicianId) return;
-    try {
-      await axios.put(`/booking/${bookingId}/assign/${technicianId}`);
-      alert("Technician assigned successfully");
-      const updatedBookings = await axios.get("/booking/all");
-      setBookings(Array.isArray(updatedBookings.data) ? updatedBookings.data : []);
-    } catch (error) {
-      console.log(error);
-      alert("Failed to assign technician");
-    }
+  const handleOpenEditModal = (issue) => {
+    setEditingIssue(issue);
+    setFormData({
+      title: issue.title || "",
+      description: issue.description || "",
+      price: issue.price || "",
+      serviceId: issue.service ? issue.service.id : "",
+      imageUrl: issue.imageUrl || "",
+      active: issue.active !== undefined ? issue.active : true,
+    });
+    setErrorMsg("");
+    setSuccessMsg("");
+    setIsModalOpen(true);
   };
 
-  const handleDeleteBooking = async (bookingId) => {
-    if (!window.confirm("Are you sure you want to delete this issue report?")) return;
-    try {
-      await axios.delete(`/booking/${bookingId}`);
-      alert("Issue report deleted successfully");
-      const updatedBookings = await axios.get("/booking/all");
-      setBookings(Array.isArray(updatedBookings.data) ? updatedBookings.data : []);
-      if (selectedBooking?.id === bookingId) {
-        setShowModal(false);
-      }
-    } catch (error) {
-      console.log(error);
-      alert("Failed to delete issue report");
-    }
-  };
-
-  const handleFormChange = (e) => {
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: type === "checkbox" ? checked : value,
     });
   };
 
@@ -135,703 +122,445 @@ const ReportIssue = () => {
     }
   };
 
-  const handleServiceIssueCreation = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setFormLoading(true);
-    setFormMessage("");
+    setErrorMsg("");
+    setSuccessMsg("");
+
+    if (!formData.title.trim()) {
+      setErrorMsg("Issue title cannot be empty.");
+      setFormLoading(false);
+      return;
+    }
+    if (!formData.serviceId) {
+      setErrorMsg("Please select a parent service category.");
+      setFormLoading(false);
+      return;
+    }
+    if (parseFloat(formData.price) < 0) {
+      setErrorMsg("Issue repair price cannot be negative.");
+      setFormLoading(false);
+      return;
+    }
 
     try {
-      await axios.post("/issues/create", formData);
-      setFormSuccess(true);
-      setFormMessage("New issue category configured successfully!");
-      setFormData({
-        title: "",
-        description: "",
-        price: "",
-        serviceId: "",
-        imageUrl: "",
-      });
-    } catch (error) {
-      console.log(error);
-      setFormSuccess(false);
-      setFormMessage("Failed to configure issue category. Please try again.");
+      const payload = {
+        ...formData,
+        serviceId: Long(formData.serviceId),
+        price: parseFloat(formData.price),
+      };
+
+      if (editingIssue) {
+        await axios.put(`/issues/update/${editingIssue.id}`, payload);
+        setSuccessMsg(`Issue '${formData.title}' updated successfully!`);
+      } else {
+        await axios.post("/issues/create", payload);
+        setSuccessMsg(`Issue '${formData.title}' created successfully!`);
+      }
+
+      fetchData();
+      setTimeout(() => {
+        setIsModalOpen(false);
+      }, 1200);
+    } catch (err) {
+      setErrorMsg(err.response?.data?.message || "Failed to save issue details.");
     } finally {
       setFormLoading(false);
     }
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "COMPLETED":
-        return "bg-emerald-50 text-emerald-700 border border-emerald-250";
-      case "IN_PROGRESS":
-        return "bg-blue-50 text-primary border border-blue-200 animate-pulseLight";
-      case "ASSIGNED":
-        return "bg-blue-50/50 text-secondary border border-blue-150";
-      case "PENDING":
-      default:
-        return "bg-amber-50 text-amber-700 border border-amber-200";
+  const Long = (val) => (val ? parseInt(val, 10) : null);
+
+  const handleToggleStatus = async (issue) => {
+    try {
+      await axios.patch(`/issues/status/${issue.id}?active=${!issue.active}`);
+      fetchData();
+    } catch (err) {
+      console.error("Failed to toggle issue status", err);
     }
   };
 
-  const filteredBookings = bookings.filter((b) => {
-    const customerName = b.user?.name?.toLowerCase() || "";
-    const serviceName = b.service?.name?.toLowerCase() || "";
-    const issueTitle = b.issue?.title?.toLowerCase() || "";
-    const description = b.issue?.description?.toLowerCase() || "";
+  const promptDeleteIssue = (issue) => {
+    setConfirmModal({
+      isOpen: true,
+      issueId: issue.id,
+      issueTitle: issue.title,
+      loading: false,
+    });
+  };
 
+  const handleConfirmDelete = async () => {
+    setConfirmModal((prev) => ({ ...prev, loading: true }));
+    try {
+      await axios.delete(`/issues/delete/${confirmModal.issueId}`);
+      fetchData();
+      setConfirmModal({ isOpen: false, issueId: null, issueTitle: "", loading: false });
+    } catch (err) {
+      console.error("Failed to delete issue", err);
+      setConfirmModal((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  const filteredIssues = issues.filter((iss) => {
+    const matchesService =
+      selectedServiceFilter === "ALL" ||
+      (iss.service && String(iss.service.id) === String(selectedServiceFilter));
     const matchesSearch =
-      customerName.includes(searchTerm.toLowerCase()) ||
-      serviceName.includes(searchTerm.toLowerCase()) ||
-      issueTitle.includes(searchTerm.toLowerCase()) ||
-      description.includes(searchTerm.toLowerCase()) ||
-      String(b.id).includes(searchTerm);
+      iss.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      iss.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      iss.service?.name?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === "" || b.status === statusFilter;
-    const matchesService = serviceFilter === "" || String(b.service?.id) === serviceFilter;
-
-    return matchesSearch && matchesStatus && matchesService;
+    return matchesService && matchesSearch;
   });
 
-  const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentBookings = filteredBookings.slice(indexOfFirstItem, indexOfLastItem);
-
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
-
-  const formatBookingDate = (dateStr) => {
-    if (!dateStr) return "N/A";
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }) + " " + date.toLocaleTimeString("en-IN", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return dateStr;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-custom-bg text-custom-text pb-20 font-sans">
-
-      <header className="sticky top-0 z-50 bg-navy text-white border-b border-slate-800">
+    <div className="min-h-screen bg-slate-50 text-slate-800 pb-20 font-sans">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-navy text-white border-b border-slate-800 shadow-md">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center">
-              <img src={logo} alt="B1K Services Logo" className="h-14 w-auto object-contain transition-all duration-300 hover:scale-105" />
-            </Link>
-            <div className="border-l border-slate-700 pl-3 hidden sm:block">
-              <span className="text-sm font-bold tracking-wider text-light-blue uppercase">Admin Portal</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Link
-              to="/admin-dashboard"
-              className="flex items-center gap-2 text-slate-400 hover:text-white font-bold transition-colors duration-200 cursor-pointer text-xs px-4 py-2 border border-slate-800 rounded-xl"
-            >
-              <FaArrowLeft className="text-xs" />
-              Back to Dashboard
-            </Link>
-          </div>
+          <Link
+            to="/admin-dashboard"
+            className="flex items-center gap-2 text-slate-300 hover:text-white font-bold text-sm transition-colors"
+          >
+            <FaArrowLeft /> Back to Dashboard
+          </Link>
+          <h1 className="text-lg font-bold text-light-blue uppercase tracking-wider hidden sm:block">
+            Admin Issue Management
+          </h1>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 mt-10 space-y-8">
-
-        <div className="space-y-2">
-          <h1 className="text-3xl md:text-5xl font-extrabold text-navy tracking-tight flex items-center gap-3">
-            <FaExclamationTriangle className="text-primary" />
-            Manage Issues
-          </h1>
-          <p className="text-slate-500 text-sm md:text-base">
-            Track user booking issues, assign service experts, update order statuses, and add new appliance issue presets
-          </p>
-        </div>
-
-        <div className="flex border-b border-custom-border gap-6">
-          <button
-            onClick={() => { setActiveTab("reports"); setCurrentPage(1); }}
-            className={`pb-4 text-sm font-bold transition-all border-b-2 outline-none cursor-pointer ${
-              activeTab === "reports"
-                ? "border-primary text-primary"
-                : "border-transparent text-slate-500 hover:text-navy"
-            }`}
-          >
-            Issue Reports List ({filteredBookings.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("configure")}
-            className={`pb-4 text-sm font-bold transition-all border-b-2 outline-none cursor-pointer ${
-              activeTab === "configure"
-                ? "border-primary text-primary"
-                : "border-transparent text-slate-500 hover:text-navy"
-            }`}
-          >
-            Configure New Issue Category
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500">
-            <span className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></span>
-            <span className="text-sm font-semibold">Loading Module Details...</span>
+      {/* Main Container */}
+      <main className="max-w-7xl mx-auto px-6 mt-8 space-y-8">
+        {/* Title Bar & Quick Actions */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-navy tracking-tight flex items-center gap-3">
+              <FaExclamationTriangle className="text-primary text-2xl" /> Appliance Breakdown Issues
+            </h2>
+            <p className="text-slate-500 text-sm mt-1">
+              Configure breakdown items, customize price quotes, and manage bookable issue categories.
+            </p>
           </div>
-        ) : activeTab === "reports" ? (
-          <div className="space-y-6">
 
-            <div className="bg-white p-5 rounded-2xl border border-custom-border shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="relative flex-1">
-                <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
-                  <FaSearch />
-                </span>
-                <input
-                  type="text"
-                  placeholder="Search by customer, service type, issue title, ID..."
-                  value={searchTerm}
-                  onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                  className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-custom-border rounded-xl outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-all text-sm"
-                />
-              </div>
+          <button
+            onClick={handleOpenAddModal}
+            className="bg-primary hover:bg-primary-hover text-white font-bold px-6 py-3 rounded-2xl shadow-lg shadow-primary/20 transition-all duration-300 flex items-center gap-2 text-sm cursor-pointer hover:-translate-y-0.5"
+          >
+            <FaPlusCircle /> Add New Issue Category
+          </button>
+        </div>
 
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <FaFilter className="text-slate-400 text-xs" />
-                  <span className="text-xs font-semibold text-slate-500">Filters:</span>
-                </div>
+        {/* Filters and Search Bar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="relative flex-1 max-w-md">
+            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
+              <FaSearch />
+            </span>
+            <input
+              type="text"
+              placeholder="Search issues by title, description or service..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:border-primary text-sm font-medium shadow-xs"
+            />
+          </div>
 
-                <select
-                  value={statusFilter}
-                  onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-                  className="px-3 py-2 bg-slate-50 border border-custom-border rounded-xl outline-none text-xs font-semibold text-slate-700 cursor-pointer"
-                >
-                  <option value="">All Statuses</option>
-                  <option value="PENDING">PENDING</option>
-                  <option value="ASSIGNED">ASSIGNED</option>
-                  <option value="IN_PROGRESS">IN PROGRESS</option>
-                  <option value="COMPLETED">COMPLETED</option>
-                </select>
+          {/* Service Filter */}
+          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-xs">
+            <FaFilter className="text-slate-400 text-xs" />
+            <span className="text-xs font-bold text-slate-500">Filter Service:</span>
+            <select
+              value={selectedServiceFilter}
+              onChange={(e) => setSelectedServiceFilter(e.target.value)}
+              className="bg-transparent text-sm font-bold text-navy outline-none cursor-pointer"
+            >
+              <option value="ALL">All Services ({issues.length})</option>
+              {services.map((svc) => (
+                <option key={svc.id} value={svc.id}>
+                  {svc.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
-                <select
-                  value={serviceFilter}
-                  onChange={(e) => { setServiceFilter(e.target.value); setCurrentPage(1); }}
-                  className="px-3 py-2 bg-slate-50 border border-custom-border rounded-xl outline-none text-xs font-semibold text-slate-700 cursor-pointer"
-                >
-                  <option value="">All Appliances</option>
-                  {services.map((svc) => (
-                    <option key={svc.id} value={svc.id}>{svc.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="bg-white border border-custom-border rounded-3xl shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-custom-border text-slate-500 font-bold text-xs uppercase tracking-wider">
-                      <th className="py-4 px-6">Issue ID</th>
-                      <th className="py-4 px-6">Appliance</th>
-                      <th className="py-4 px-6">Issue Name</th>
-                      <th className="py-4 px-6">Customer</th>
-                      <th className="py-4 px-6 text-center">Status</th>
-                      <th className="py-4 px-6">Assigned Technician</th>
-                      <th className="py-4 px-6 text-center">Actions</th>
-                    </tr>
-                  </thead>
-
-                  <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
-                    {currentBookings.length === 0 ? (
-                      <tr>
-                        <td colSpan="7" className="py-12 text-center text-slate-500 font-semibold">
-                          No Issue Reports Found
-                        </td>
-                      </tr>
-                    ) : (
-                      currentBookings.map((b) => (
-                        <tr key={b.id} className="hover:bg-slate-50/40 transition-colors duration-200">
-                          <td className="py-4 px-6 font-mono font-bold text-slate-400">#{b.id}</td>
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={b.service?.imageUrl || `/${b.service?.name}.png`}
-                                alt={b.service?.name}
-                                className="w-8 h-8 rounded-lg object-cover bg-slate-100 border shrink-0"
-                                onError={(e) => { e.target.src = "/default-service.png"; }}
-                              />
-                              <span className="font-bold text-navy">{b.service?.name}</span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={b.issue?.imageUrl || b.service?.imageUrl || `/${b.service?.name}.png`}
-                                alt={b.issue?.title}
-                                className="w-8 h-8 rounded-lg object-cover bg-slate-100 border shrink-0"
-                                onError={(e) => { e.target.src = "/default-service.png"; }}
-                              />
-                              <div className="space-y-0.5">
-                                <span className="font-semibold text-slate-800 block truncate max-w-[160px]" title={b.issue?.title}>{b.issue?.title}</span>
-                                <span className="text-xs text-slate-450 truncate max-w-[180px] block" title={b.issue?.description}>{b.issue?.description}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="space-y-0.5">
-                              <span className="font-semibold text-slate-900 block">{b.user?.name}</span>
-                              <span className="text-xs text-slate-400 block">{b.user?.phone || "No Phone"}</span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            <select
-                              value={b.status || ""}
-                              onChange={(e) => handleStatusUpdate(b.id, e.target.value)}
-                              className={`px-3 py-1 rounded-full text-xs font-bold outline-none cursor-pointer border ${getStatusBadge(b.status)}`}
-                            >
-                              <option value="PENDING">PENDING</option>
-                              <option value="ASSIGNED">ASSIGNED</option>
-                              <option value="IN_PROGRESS">IN PROGRESS</option>
-                              <option value="COMPLETED">COMPLETED</option>
-                            </select>
-                          </td>
-                          <td className="py-4 px-6">
-                            <select
-                              value={b.technician?.id || ""}
-                              onChange={(e) => handleTechnicianAssign(b.id, e.target.value)}
-                              className="px-2 py-1 bg-slate-50 border border-slate-200 focus:border-secondary focus:ring-1 focus:ring-secondary rounded-lg outline-none text-xs font-semibold text-slate-700 cursor-pointer w-40"
-                            >
-                              <option value="">Select Technician</option>
-                              {technicians.map((t) => (
-                                <option key={t.id} value={t.id}>{t.name} ({t.skills})</option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            <div className="flex items-center justify-center gap-3">
-                              <button
-                                onClick={() => { setSelectedBooking(b); setShowModal(true); }}
-                                className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-primary flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-all duration-200 cursor-pointer"
-                                title="View Details"
-                              >
-                                <FaEye className="text-xs" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteBooking(b.id)}
-                                className="w-8 h-8 rounded-lg bg-red-50 border border-red-100 text-red-555 flex items-center justify-center hover:bg-red-500 hover:text-white hover:border-red-500 transition-all duration-200 cursor-pointer"
-                                title="Delete"
-                              >
-                                <FaTrash className="text-xs" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {totalPages > 1 && (
-                <div className="bg-slate-50 px-6 py-4 border-t border-custom-border flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-semibold">
-                    Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredBookings.length)} of {filteredBookings.length} bookings
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className="px-3 py-1.5 border border-custom-border bg-white rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition-colors cursor-pointer"
-                    >
-                      Previous
-                    </button>
-                    {[...Array(totalPages)].map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handlePageChange(index + 1)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                          currentPage === index + 1
-                            ? "bg-primary text-white"
-                            : "border border-custom-border bg-white text-slate-600 hover:bg-slate-50"
-                        }`}
-                      >
-                        {index + 1}
-                      </button>
-                    ))}
-                    <button
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                      className="px-3 py-1.5 border border-custom-border bg-white rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition-colors cursor-pointer"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+        {/* Issues Cards Grid */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : filteredIssues.length === 0 ? (
+          <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-xs space-y-3">
+            <FaExclamationTriangle className="mx-auto text-4xl text-slate-300" />
+            <h3 className="text-lg font-bold text-slate-700">No Issues Found</h3>
+            <p className="text-slate-500 text-sm">
+              {searchTerm || selectedServiceFilter !== "ALL"
+                ? "No issue breakdowns match your filter criteria."
+                : "Click 'Add New Issue Category' to configure appliance repair issues."}
+            </p>
           </div>
         ) : (
-          /* Configure new issue Tab content */
-          <div className="w-full max-w-2xl bg-white rounded-3xl border border-custom-border shadow-sm overflow-hidden mx-auto mt-4">
-            <div className="bg-navy text-white p-8 space-y-2">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white text-lg shadow-md shadow-primary/20">
-                  <FaPlusCircle />
-                </div>
-                <h1 className="text-2xl font-extrabold tracking-tight">Configure Issue Option</h1>
-              </div>
-              <p className="text-slate-400 text-sm pl-13">
-                Add specific breakdowns that customers can select dynamically during booking
-              </p>
-            </div>
-
-            <div className="p-8">
-              {formMessage && (
-                <div
-                  className={`mb-6 p-4 rounded-2xl text-center font-semibold text-sm border ${
-                    formSuccess
-                      ? "bg-blue-50 text-primary border-blue-200"
-                      : "bg-red-50 text-red-500 border-red-200"
-                  }`}
-                >
-                  {formMessage}
-                </div>
-              )}
-
-              <form onSubmit={handleServiceIssueCreation} className="space-y-6">
-                <div>
-                  <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="serviceId">
-                    Select Service Category
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
-                      <FaTools className="text-sm" />
-                    </span>
-                    <select
-                      id="serviceId"
-                      name="serviceId"
-                      value={formData.serviceId}
-                      onChange={handleFormChange}
-                      required
-                      className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 transition-all duration-300 text-sm font-medium appearance-none cursor-pointer"
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredIssues.map((issue) => (
+              <div
+                key={issue.id}
+                className="bg-white rounded-2xl border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:-translate-y-1"
+              >
+                {/* Header Image */}
+                <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
+                  <img
+                    src={issue.imageUrl || issue.service?.imageUrl || "/default-service.png"}
+                    alt={issue.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                      e.target.src = "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=600&q=80";
+                    }}
+                  />
+                  <div className="absolute top-3 left-3 bg-navy/80 text-white font-bold text-xs px-3 py-1 rounded-xl backdrop-blur-xs">
+                    {issue.service ? issue.service.name : "Appliance"}
+                  </div>
+                  <div className="absolute top-3 right-3">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold shadow-md ${
+                        issue.active
+                          ? "bg-emerald-500 text-white"
+                          : "bg-slate-700 text-slate-200"
+                      }`}
                     >
-                      <option value="">Choose Service category</option>
-                      {services.map((service) => (
-                        <option key={service.id} value={service.id}>
-                          {service.name}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 pointer-events-none text-xs">
-                      ▼
+                      {issue.active ? "ENABLED" : "DISABLED"}
                     </span>
+                  </div>
+                  <div className="absolute bottom-3 right-3 bg-emerald-600 text-white font-extrabold px-3 py-1 rounded-xl text-sm shadow-md flex items-center gap-1">
+                    <FaRupeeSign className="text-xs" /> {issue.price}
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="title">
-                    Issue Title
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">
-                      <FaExclamationTriangle className="text-sm" />
-                    </span>
-                    <input
-                      id="title"
-                      type="text"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleFormChange}
-                      placeholder="Example: Compressor Failure / Gas Leakage"
-                      required
-                      className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 transition-all duration-300 text-sm font-medium"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="description">
-                    Issue Description
-                  </label>
-                  <div className="relative">
-                    <span className="absolute top-3.5 left-4 text-slate-400">
-                      <FaFileAlt className="text-sm" />
-                    </span>
-                    <textarea
-                      id="description"
-                      rows="4"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleFormChange}
-                      placeholder="Describe the diagnostics and repairing scope of this breakdown..."
-                      required
-                      className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 resize-none transition-all duration-300 text-sm font-medium"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="price">
-                    Estimated Repair Price (₹)
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 font-bold">
-                      ₹
-                    </span>
-                    <input
-                      id="price"
-                      type="number"
-                      name="price"
-                      value={formData.price}
-                      onChange={handleFormChange}
-                      placeholder="299"
-                      required
-                      className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-custom-border focus:border-secondary focus:ring-1 focus:ring-secondary rounded-2xl outline-none text-navy placeholder-slate-400 transition-all duration-300 text-sm font-medium"
-                    />
-                  </div>
-                </div>
-
-                {/* Issue Image Selection & Upload */}
-                <div className="bg-slate-50 border border-custom-border rounded-2xl p-5 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-navy flex items-center gap-2">
-                      <FaImage className="text-primary text-base" />
-                      Issue Breakdown Image (Publicly Visible)
+                {/* Body Content */}
+                <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold text-navy group-hover:text-primary transition-colors">
+                      {issue.title}
                     </h3>
-                    {formData.imageUrl && (
+                    <p className="text-slate-500 text-sm line-clamp-3 leading-relaxed">
+                      {issue.description}
+                    </p>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <button
+                      onClick={() => handleToggleStatus(issue)}
+                      className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-colors cursor-pointer ${
+                        issue.active
+                          ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      {issue.active ? <FaToggleOn className="text-base text-emerald-600" /> : <FaToggleOff className="text-base" />}
+                      {issue.active ? "Disable" : "Enable"}
+                    </button>
+
+                    <div className="flex items-center gap-2">
                       <button
-                        type="button"
-                        onClick={() => setFormData({ ...formData, imageUrl: "" })}
-                        className="text-xs text-red-500 font-semibold hover:underline"
+                        onClick={() => handleOpenEditModal(issue)}
+                        className="p-2.5 rounded-xl bg-blue-50 text-primary hover:bg-primary hover:text-white transition-all cursor-pointer text-sm"
+                        title="Edit Issue & Price"
                       >
-                        Clear Image
+                        <FaEdit />
                       </button>
-                    )}
-                  </div>
-
-                  {/* Live Preview Box */}
-                  {formData.imageUrl ? (
-                    <div className="relative w-full h-36 rounded-xl overflow-hidden border border-custom-border bg-slate-200 flex items-center justify-center">
-                      <img
-                        src={formData.imageUrl}
-                        alt="Selected Issue Breakdown Graphic"
-                        className="w-full h-full object-cover"
-                        onError={(e) => { e.target.src = "/default-service.png"; }}
-                      />
-                      <div className="absolute bottom-2 left-2 bg-navy/80 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-sm">
-                        Issue Graphic Selected
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="w-full h-20 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center text-slate-400 text-xs gap-1">
-                      <FaImage className="text-base" />
-                      <span>No image selected (Will fallback to parent service graphic)</span>
-                    </div>
-                  )}
-
-                  {/* Image Input Options */}
-                  <div className="space-y-3 pt-1">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Paste Image URL:</label>
-                      <input
-                        type="text"
-                        name="imageUrl"
-                        value={formData.imageUrl}
-                        onChange={handleFormChange}
-                        placeholder="https://example.com/issue-image.jpg or /AC.gas.png"
-                        className="w-full px-3 py-2 bg-white border border-custom-border rounded-xl text-xs outline-none focus:border-secondary text-navy"
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1">
-                        <label className="block text-xs font-semibold text-slate-600 mb-1">Upload Local Image File:</label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFileUpload}
-                          className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Presets */}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-2">Or Select Available Preset Graphic ({issuePresets.length} images):</label>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 max-h-60 overflow-y-auto p-1 gap-2 border border-slate-200 rounded-xl bg-white">
-                        {issuePresets.map((preset, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, imageUrl: preset.url })}
-                            className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all text-xs ${
-                              formData.imageUrl === preset.url
-                                ? "border-primary bg-blue-50 text-primary font-bold shadow-sm"
-                                : "border-slate-200 bg-white hover:border-slate-300 text-slate-700"
-                            }`}
-                          >
-                            <img
-                              src={preset.url}
-                              alt={preset.label}
-                              className="w-6 h-6 rounded-lg object-cover shrink-0 bg-slate-100"
-                              onError={(e) => { e.target.src = "/default-service.png"; }}
-                            />
-                            <span className="truncate text-[11px] font-medium" title={preset.name}>{preset.label}</span>
-                          </button>
-                        ))}
-                      </div>
+                      <button
+                        onClick={() => promptDeleteIssue(issue)}
+                        className="p-2.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all cursor-pointer text-sm"
+                        title="Soft Delete Issue"
+                      >
+                        <FaTrashAlt />
+                      </button>
                     </div>
                   </div>
                 </div>
-
-                <div className="bg-slate-50 border border-custom-border rounded-2xl p-5 space-y-2">
-                  <h3 className="text-sm font-bold text-navy flex items-center gap-2">
-                    <FaInfoCircle className="text-primary" />
-                    Issue Guidelines
-                  </h3>
-                  <ul className="list-disc list-inside text-xs text-slate-500 space-y-1.5 pl-1 leading-relaxed">
-                    <li>
-                      Assign issues to correct parent service categories (e.g. AC Repair vs Television).
-                    </li>
-                    <li>
-                      Write short, descriptive titles like "Thermostat Repair" for clear booking cards.
-                    </li>
-                    <li>
-                      Set estimate pricing dynamically. Final technician quotes can adapt in-person.
-                    </li>
-                  </ul>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="w-full bg-primary hover:bg-primary-hover disabled:bg-primary/60 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-primary/20 transition duration-300 flex items-center justify-center gap-2 cursor-pointer text-sm hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  {formLoading ? (
-                    <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  ) : (
-                    "Create Issue Option"
-                  )}
-                </button>
-              </form>
-            </div>
+              </div>
+            ))}
           </div>
         )}
       </main>
 
-      {showModal && selectedBooking && (
-        <div className="fixed inset-0 z-55 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-          <div className="w-full max-w-xl bg-white border border-custom-border rounded-3xl shadow-2xl overflow-hidden animate-scaleIn">
-            <div className="bg-navy p-6 text-white flex justify-between items-center">
+      {/* Add / Edit Issue Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-8 shadow-2xl border border-slate-100 space-y-6 my-8">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+              <h3 className="text-xl font-bold text-navy flex items-center gap-2">
+                <FaExclamationTriangle className="text-primary" />
+                {editingIssue ? "Edit Issue Category & Price" : "Configure New Breakdown Issue"}
+              </h3>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 font-bold text-lg cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {errorMsg && (
+              <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-sm font-semibold flex items-center gap-2">
+                <FaExclamationCircle /> {errorMsg}
+              </div>
+            )}
+            {successMsg && (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-2xl text-sm font-semibold flex items-center gap-2">
+                <FaCheckCircle /> {successMsg}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <h3 className="font-extrabold text-lg">Issue Report Details</h3>
-                <p className="text-xs text-slate-400">Order ID: #{selectedBooking.id}</p>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Parent Service Category *</label>
+                <select
+                  name="serviceId"
+                  value={formData.serviceId}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-primary text-sm font-medium bg-white"
+                >
+                  <option value="">Select Service</option>
+                  {services.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} (Base: ₹{s.basePrice})
+                    </option>
+                  ))}
+                </select>
               </div>
-              <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${getStatusBadge(selectedBooking.status)}`}>
-                {selectedBooking.status}
-              </span>
-            </div>
 
-            <div className="p-6 space-y-6 text-sm text-slate-700">
-
-              <div className="flex gap-3 items-center p-3 bg-slate-50 border border-slate-200 rounded-2xl">
-                <img
-                  src={selectedBooking.issue?.imageUrl || selectedBooking.service?.imageUrl || `/${selectedBooking.service?.name}.png`}
-                  alt="Issue Graphic"
-                  className="w-16 h-16 rounded-xl object-cover border shrink-0 bg-white"
-                  onError={(e) => { e.target.src = "/default-service.png"; }}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Issue Title *</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  placeholder="e.g. Gas Leakage & Refilling"
+                  required
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-primary text-sm font-medium"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Issue Description *</label>
+                <textarea
+                  name="description"
+                  rows="3"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Detailed breakdown scope and diagnostics info..."
+                  required
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-primary text-sm font-medium resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Issue Repair Price (₹) *</label>
+                <input
+                  type="number"
+                  name="price"
+                  step="0.01"
+                  min="0"
+                  value={formData.price}
+                  onChange={handleChange}
+                  placeholder="699"
+                  required
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-primary text-sm font-medium"
+                />
+              </div>
+
+              {/* Graphic options */}
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                <label className="block text-xs font-bold text-navy">Issue Breakdown Display Image</label>
+                {formData.imageUrl && (
+                  <div className="h-32 w-full rounded-xl overflow-hidden bg-slate-200 border border-slate-300">
+                    <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
                 <div>
-                  <h5 className="font-extrabold text-navy text-sm">{selectedBooking.issue?.title || selectedBooking.service?.name}</h5>
-                  <p className="text-xs text-slate-500 line-clamp-2">{selectedBooking.issue?.description}</p>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="font-extrabold text-navy text-base border-b pb-2 flex items-center gap-2">
-                  <FaTools className="text-primary text-xs" />
-                  Service Request Information
-                </h4>
-                <div className="grid grid-cols-2 gap-y-2 pt-1">
-                  <div>
-                    <span className="text-slate-400 text-xs font-semibold block">Appliance Category</span>
-                    <span className="font-bold text-navy text-sm">{selectedBooking.service?.name}</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 text-xs font-semibold block">Issue Name</span>
-                    <span className="font-bold text-slate-800 text-sm">{selectedBooking.issue?.title}</span>
-                  </div>
-                  <div className="col-span-2 pt-1">
-                    <span className="text-slate-400 text-xs font-semibold block">Diagnostics Scope</span>
-                    <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 border p-3 rounded-xl mt-1">{selectedBooking.issue?.description}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="font-extrabold text-navy text-base border-b pb-2 flex items-center gap-2">
-                  <FaUser className="text-primary text-xs" />
-                  Customer Contact & Address
-                </h4>
-                <div className="grid grid-cols-2 gap-y-2 pt-1">
-                  <div>
-                    <span className="text-slate-400 text-xs font-semibold block">Client Name</span>
-                    <span className="font-semibold text-slate-800">{selectedBooking.user?.name}</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 text-xs font-semibold block">Contact Email</span>
-                    <span className="font-semibold text-slate-650 break-all">{selectedBooking.user?.email || "N/A"}</span>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-slate-400 text-xs font-semibold block">Billing Address</span>
-                    <span className="font-medium text-slate-600 block pt-0.5 leading-relaxed">{selectedBooking.address}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 border-t pt-4">
-                <div>
-                  <span className="text-slate-400 text-xs font-semibold block">Booking Time</span>
-                  <div className="flex items-center gap-1.5 text-slate-700 font-semibold text-xs pt-1">
-                    <FaCalendarAlt className="text-slate-400 text-xs shrink-0" />
-                    {formatBookingDate(selectedBooking.bookingDate)}
-                  </div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">Paste Image URL:</label>
+                  <input
+                    type="text"
+                    name="imageUrl"
+                    value={formData.imageUrl}
+                    onChange={handleChange}
+                    placeholder="https://example.com/issue-image.jpg"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-primary"
+                  />
                 </div>
                 <div>
-                  <span className="text-slate-400 text-xs font-semibold block">Total Estimated Cost</span>
-                  <span className="text-xl font-black text-primary block pt-0.5">
-                    ₹{(selectedBooking.service?.basePrice || 0) + (selectedBooking.issue?.price || 0)}
-                  </span>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">Or Choose Preset Graphic:</label>
+                  <div className="grid grid-cols-3 max-h-40 overflow-y-auto p-1 gap-2 border border-slate-200 rounded-xl bg-white">
+                    {issuePresets.map((preset, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, imageUrl: preset.url })}
+                        className={`p-1.5 rounded-lg border text-left flex items-center gap-1.5 transition-all text-xs ${
+                          formData.imageUrl === preset.url
+                            ? "border-primary bg-blue-50 text-primary font-bold"
+                            : "border-slate-200 hover:border-slate-300 text-slate-700"
+                        }`}
+                      >
+                        <img src={preset.url} alt={preset.label} className="w-5 h-5 rounded-md object-cover" />
+                        <span className="truncate text-[10px]">{preset.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-slate-50 px-6 py-4 border-t flex justify-end gap-3">
-              <button
-                onClick={() => handleDeleteBooking(selectedBooking.id)}
-                className="bg-red-50 hover:bg-red-500 text-red-600 hover:text-white font-bold px-4 py-2 border border-red-150 rounded-xl transition duration-200 text-xs cursor-pointer"
-              >
-                Delete Issue
-              </button>
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-primary hover:bg-primary-hover text-white font-bold px-6 py-2 rounded-xl transition duration-200 text-xs cursor-pointer shadow-md shadow-primary/25"
-              >
-                Close View
-              </button>
-            </div>
+              <div className="flex items-center gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="activeIssue"
+                  name="active"
+                  checked={formData.active}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-primary rounded-md"
+                />
+                <label htmlFor="activeIssue" className="text-sm font-semibold text-slate-700 cursor-pointer">
+                  Issue Option is Active & Enabled
+                </label>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={formLoading}
+                  className="px-6 py-2.5 rounded-xl font-bold text-sm text-white bg-primary hover:bg-primary-hover shadow-md cursor-pointer flex items-center gap-2"
+                >
+                  {formLoading ? "Saving..." : editingIssue ? "Update Issue" : "Create Issue"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
+
+      {/* Confirmation Dialog for Soft Delete */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        title="Soft Delete Issue Option?"
+        message={`Are you sure you want to delete '${confirmModal.issueTitle}'? Historical customer bookings will remain intact, and this issue will be disabled for future bookings.`}
+        confirmText="Yes, Soft Delete"
+        cancelText="Cancel"
+        loading={confirmModal.loading}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmModal({ isOpen: false, issueId: null, issueTitle: "", loading: false })}
+      />
     </div>
   );
 };

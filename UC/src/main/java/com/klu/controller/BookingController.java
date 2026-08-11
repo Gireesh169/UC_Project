@@ -83,6 +83,27 @@ public class BookingController {
         return bookingService.getPendingBookings();
     }
 
+    @GetMapping("/{bookingId}")
+    public Booking getBookingById(@PathVariable Long bookingId) {
+        return bookingService.getBookingById(bookingId);
+    }
+
+    @GetMapping("/search")
+    public List<Booking> searchBookings(
+            @RequestParam(required = false) Long bookingId,
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long serviceId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false, defaultValue = "newest") String sortBy) {
+
+        return bookingService.searchAndSortBookings(
+                bookingId, query, status, serviceId, minPrice, maxPrice, startDate, endDate, sortBy);
+    }
+
     @GetMapping("/history")
     public List<Booking> getBookingHistory() {
         return bookingService.getBookingHistory();

@@ -15,6 +15,10 @@ import com.klu.service.UserService;
 import jakarta.validation.Valid;
 import java.util.Map;
 
+import com.klu.dto.CustomerDetailsResponse;
+import com.klu.dto.TechnicianDetailsResponse;
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -37,6 +41,23 @@ public class AdminController {
         String adminEmail = authentication != null ? authentication.getName() : "admin@b1kservices.com";
         Technician technician = adminService.createTechnicianAccount(request, adminEmail);
         return ResponseEntity.ok(technician);
+    }
+
+    // Enriched Technician Profiles for Admin
+    @GetMapping("/technicians/details")
+    public ResponseEntity<List<TechnicianDetailsResponse>> getTechnicianProfiles() {
+        return ResponseEntity.ok(adminService.getTechnicianProfiles());
+    }
+
+    // Customer Profiles for Admin
+    @GetMapping("/customers")
+    public ResponseEntity<List<CustomerDetailsResponse>> getCustomers() {
+        return ResponseEntity.ok(adminService.getCustomerProfiles());
+    }
+
+    @GetMapping("/customers/{id}")
+    public ResponseEntity<CustomerDetailsResponse> getCustomerById(@PathVariable Long id) {
+        return ResponseEntity.ok(adminService.getCustomerById(id));
     }
 
     // PART 11: Admin Dashboard Analytics
