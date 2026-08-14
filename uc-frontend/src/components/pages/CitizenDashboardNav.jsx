@@ -20,15 +20,15 @@ export default function CitizenDashboardNav() {
   const navItems = [
     { path: "/citizenHome", label: "Home", icon: FaHome },
     { path: "/updateProfile", label: "Profile", icon: FaUserEdit },
-    { path: "/booking", label: "Book Service", icon: FaPlusCircle },
+    { path: "/booking", label: "Book", icon: FaPlusCircle },
     { path: "/view-history", label: "History", icon: FaHistory },
   ];
 
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-2xl">
-      <div className="backdrop-blur-md bg-slate-900/90 border border-slate-800 rounded-full shadow-xl shadow-black/30 px-4 py-3 flex items-center justify-between gap-2 sm:gap-4">
-        <Link to="/" className="flex items-center pl-2">
-          <img src={logo} alt="B1K Services Logo" className="h-16 md:h-18 w-auto object-contain transition-all duration-300 hover:scale-105" />
+    <nav className="fixed top-3 sm:top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-2xl">
+      <div className="backdrop-blur-xl bg-slate-900/95 border border-slate-800 rounded-full shadow-2xl px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-1 sm:gap-4">
+        <Link to="/" className="flex items-center pl-1 shrink-0">
+          <img src={logo} alt="B1K Services Logo" className="h-8 sm:h-10 w-auto object-contain" />
         </Link>
 
         <div className="flex items-center gap-1 sm:gap-2">
@@ -42,25 +42,26 @@ export default function CitizenDashboardNav() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 ${
+                className={`flex items-center gap-1.5 px-3 py-2.5 sm:px-4 sm:py-2 rounded-full text-xs font-semibold transition-all duration-300 min-h-[44px] ${
                   isActive
-                    ? "bg-primary text-white shadow-md shadow-primary/20"
+                    ? "bg-[#0B3D91] text-white shadow-md"
                     : "text-slate-400 hover:text-white hover:bg-slate-800/50"
                 }`}
               >
                 <Icon className="text-sm shrink-0" />
-                <span className="hidden md:inline">{item.label}</span>
+                <span className="hidden sm:inline">{item.label}</span>
               </Link>
             );
           })}
         </div>
 
         <button
+          type="button"
           onClick={handleLogout}
-          className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all cursor-pointer"
+          className="flex items-center gap-1.5 px-2.5 py-2.5 sm:px-3 sm:py-2 rounded-full text-xs font-semibold text-red-400 hover:bg-red-500/10 transition-all cursor-pointer min-h-[44px] shrink-0"
         >
           <FaSignOutAlt className="text-sm shrink-0" />
-          <span className="hidden md:inline">Logout</span>
+          <span className="hidden sm:inline">Logout</span>
         </button>
       </div>
     </nav>
