@@ -1,5 +1,6 @@
 package com.klu.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,7 +21,7 @@ public class ServiceEntity {
     private String description;
     private double basePrice;
 
-    @jakarta.persistence.Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     private boolean active = true;
