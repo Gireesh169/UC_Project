@@ -7,12 +7,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "otp_verifications")
+@Table(name = "otp_verifications", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_otp_verifications_email", columnNames = "email")
+})
 @Data
 public class OtpVerification {
 
@@ -22,7 +25,7 @@ public class OtpVerification {
 
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     private String phone;

@@ -1,5 +1,6 @@
 package com.klu.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +13,8 @@ import com.klu.model.OtpVerification;
 public interface OtpVerificationRepository extends JpaRepository<OtpVerification, Long> {
 
     Optional<OtpVerification> findByEmail(String email);
+
+    List<OtpVerification> findAllByEmail(String email);
 
     Optional<OtpVerification> findByEmailAndOtp(String email, String otp);
 

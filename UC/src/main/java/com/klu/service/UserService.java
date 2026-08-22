@@ -48,6 +48,26 @@ public class UserService {
     }
 
     /**
+     * Helper method to safely retrieve an OtpVerification record for an email.
+     * If multiple duplicate records exist in the database, it retains one record
+     * and purges the extra duplicates to clean up existing database records.
+     */
+    private Optional<OtpVerification> findOtpVerificationByEmailSafely(String email) {
+        List<OtpVerification> records = otpVerificationRepository.findAllByEmail(email);
+        if (records == null || records.isEmpty()) {
+            return Optional.empty();
+        }
+        if (records.size() > 1) {
+            OtpVerification primary = records.get(0);
+            for (int i = 1; i < records.size(); i++) {
+                otpVerificationRepository.delete(records.get(i));
+            }
+            return Optional.of(primary);
+        }
+        return Optional.of(records.get(0));
+    }
+
+    /**
      * Step 1 of Signup: Send OTP & store registration data temporarily in OtpVerification table.
      * DO NOT write to User table.
      */
@@ -65,7 +85,7 @@ public class UserService {
         String encryptedPassword = passwordEncoder.encode(request.getPassword());
 
         // 4. Save or update temporary OtpVerification record
-        Optional<OtpVerification> existingOtpOpt = otpVerificationRepository.findByEmail(request.getEmail());
+        Optional<OtpVerification> existingOtpOpt = findOtpVerificationByEmailSafely(request.getEmail());
         OtpVerification otpRecord = existingOtpOpt.orElseGet(OtpVerification::new);
 
         otpRecord.setName(request.getName());
@@ -89,7 +109,7 @@ public class UserService {
      */
     @Transactional
     public User verifyOtp(String email, String otp) {
-        OtpVerification otpRecord = otpVerificationRepository.findByEmail(email)
+        OtpVerification otpRecord = findOtpVerificationByEmailSafely(email)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid OTP"));
 
         // Check if OTP matches
@@ -133,7 +153,7 @@ public class UserService {
      */
     @Transactional
     public void resendOtp(String email) {
-        OtpVerification otpRecord = otpVerificationRepository.findByEmail(email)
+        OtpVerification otpRecord = findOtpVerificationByEmailSafely(email)
                 .orElseThrow(() -> new IllegalArgumentException("No pending registration found for email: " + email));
 
         String newOtp = generateOtp();
